@@ -1,6 +1,6 @@
 // /predict [image_url] - ML Image Classification Demo
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const config = require('../config');
+const config = require('../../config');
 
 module.exports = {
     data: new SlashCommandBuilder()

@@ -3,10 +3,21 @@
 // ============================================
 
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
+const { setGlobalDispatcher, Agent } = require('undici');
 const fs = require('fs');
 const path = require('path');
 const config = require('./config');
 const newsAggregator = require('./services/newsAggregator');
+
+// Force global timeout & IPv4 agar tidak diputus koneksinya oleh cloud
+setGlobalDispatcher(new Agent({ 
+    connect: { 
+        timeout: 60000,
+        family: 4 // Paksa gunakan IPv4 (Sangat Penting!)
+    },
+    headersTimeout: 60000,
+    bodyTimeout: 60000
+}));
 
 // Validate token
 if (!config.token || config.token === 'YOUR_BOT_TOKEN_HERE') {
@@ -22,7 +33,7 @@ if (!config.token || config.token === 'YOUR_BOT_TOKEN_HERE') {
     process.exit(1);
 }
 
-// Create client
+// Create client with increased timeout for slow networks
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -30,6 +41,9 @@ const client = new Client({
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
     ],
+    rest: {
+        timeout: 60000, // Tunggu 60 detik (default cuma 15 detik)
+    }
 });
 
 // ─── Load Commands ───
@@ -79,7 +93,33 @@ server.listen(PORT, () => {
     console.log(`📡 Keep-alive server listening on port ${PORT}`);
 });
 
-// ─── Login ───
-console.log('');
-console.log('🔑 Logging in...');
-client.login(config.token);
+// ─── Network Test & Login ───
+const login = async () => {
+    console.log('');
+    console.log('🌐 Testing network connectivity...');
+    try {
+        const { request } = require('undici');
+        await request('https://discord.com/api/v10/gateway');
+        console.log('✅ Network OK: Can reach Discord API');
+    } catch (e) {
+        console.error('❌ Network Error: Cannot reach Discord API');
+        console.error(e.message);
+    }
+
+    console.log('🔑 Attempting to login...');
+    try {
+        await client.login(config.token);
+    } catch (error) {
+        console.error('❌ Gagal login ke Discord:');
+        console.error(error.message);
+        console.log('🔄 Mencoba kembali dalam 10 detik...');
+        setTimeout(login, 10000);
+    }
+};
+
+login();
+
+// Handle unhandled rejections
+process.on('unhandledRejection', error => {
+    console.error('⚠️ Unhandled promise rejection:', error);
+});
