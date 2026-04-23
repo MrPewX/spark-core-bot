@@ -1,53 +1,33 @@
-// ============================================
-// DEPLOY COMMANDS — Register slash commands to Discord
-// Run: node src/deploy-commands.js
-// ============================================
-
 const { REST, Routes } = require('discord.js');
-const fs = require('fs');
-const path = require('path');
 const config = require('./config');
+const path = require('path');
 
-const commands = [];
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(f => f.endsWith('.js'));
-
-for (const file of commandFiles) {
-    const command = require(path.join(commandsPath, file));
-    if ('data' in command && 'execute' in command) {
-        commands.push(command.data.toJSON());
-        console.log(`  ✅ Loaded: /${command.data.name}`);
-    }
-}
+// Langsung tunjuk ke file spark.js sebagai satu-satunya perintah utama
+const sparkCommand = require('./commands/spark.js');
+const commands = [sparkCommand.data.toJSON()];
 
 const rest = new REST({ version: '10' }).setToken(config.token);
 
 (async () => {
     try {
-        console.log('');
-        console.log(`🔄 Mendaftarkan ${commands.length} slash commands...`);
+        console.log(`🔄 Mendaftarkan perintah utama: /${sparkCommand.data.name}`);
 
         if (config.guildId) {
-            // Guild commands (instant, good for development)
-            const data = await rest.put(
+            await rest.put(
                 Routes.applicationGuildCommands(config.clientId, config.guildId),
                 { body: commands },
             );
-            console.log(`✅ Berhasil mendaftarkan ${data.length} guild commands!`);
+            console.log('✅ BERHASIL! Perintah /spark sudah aktif secara INSTAN di server kamu.');
         } else {
-            // Global commands (takes ~1 hour to propagate)
-            const data = await rest.put(
+            await rest.put(
                 Routes.applicationCommands(config.clientId),
                 { body: commands },
             );
-            console.log(`✅ Berhasil mendaftarkan ${data.length} global commands!`);
-            console.log('⚠️  Global commands perlu ~1 jam untuk aktif di semua server.');
+            console.log('✅ BERHASIL! Perintah /spark didaftarkan secara GLOBAL.');
         }
-
-        console.log('');
-        console.log('🎉 Sekarang jalankan bot dengan: node src/index.js');
-        console.log('');
+        console.log('💡 Silakan Refresh Discord (Ctrl+R) jika menu belum muncul.');
     } catch (error) {
-        console.error('❌ Gagal mendaftarkan commands:', error);
+        console.error('❌ Gagal mendaftarkan commands:');
+        console.error(error);
     }
 })();
