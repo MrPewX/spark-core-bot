@@ -64,8 +64,19 @@ for (const file of eventFiles) {
 }
 
 // ─── Start News Aggregator ───
-client.once('ready', () => {
+client.once('clientReady', () => {
     newsAggregator.start(client);
+});
+
+// ─── Keep-Alive Server (For Render/Railway) ───
+const http = require('http');
+const server = http.createServer((req, res) => {
+    res.writeHead(200);
+    res.end('Spark-Core is online! ⚡');
+});
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, () => {
+    console.log(`📡 Keep-alive server listening on port ${PORT}`);
 });
 
 // ─── Login ───
