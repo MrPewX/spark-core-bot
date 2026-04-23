@@ -8,16 +8,24 @@ module.exports = {
         // ─── Slash Commands ───
         if (interaction.isChatInputCommand()) {
             const command = interaction.client.commands.get(interaction.commandName);
-            if (!command) return;
+
+            if (!command) {
+                console.warn(`[WARN] Command ${interaction.commandName} tidak ditemukan.`);
+                return;
+            }
+
             try {
+                // Jalankan perintah
                 await command.execute(interaction);
+                console.log(`[LOG] Perintah /${interaction.commandName} berhasil dijalankan oleh ${interaction.user.tag}`);
             } catch (error) {
-                console.error(`❌ Error executing /${interaction.commandName}:`, error);
-                const reply = { content: '❌ Terjadi error saat menjalankan perintah.', ephemeral: true };
+                console.error(`[ERROR] Gagal menjalankan /${interaction.commandName}:`, error);
+                
+                const errorMessage = { content: '❌ Terjadi kesalahan saat menjalankan perintah ini!', ephemeral: true };
                 if (interaction.replied || interaction.deferred) {
-                    await interaction.followUp(reply);
+                    await interaction.followUp(errorMessage);
                 } else {
-                    await interaction.reply(reply);
+                    await interaction.reply(errorMessage);
                 }
             }
             return;

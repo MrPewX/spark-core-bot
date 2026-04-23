@@ -10,28 +10,9 @@ module.exports = {
     async execute(interaction) {
         const embed = new EmbedBuilder()
             .setColor(config.branding.color)
-            .setTitle('📖 Spark-Core — Command Guide')
-            .setDescription('Berikut adalah daftar semua perintah yang tersedia:')
+            .setTitle('⚡ Spark-Core Command Center')
+            .setDescription('Selamat datang di pusat kendali Spark-Core. Gunakan prefix `/spark` diikuti oleh perintah di bawah ini:')
             .addFields(
-                {
-                    name: '🔌 IoT Commands',
-                    value: [
-                        '`/pin-out` — Menampilkan pinout microcontroller',
-                        '`/check-mqtt` — Cek status broker MQTT',
-                        '`/status-alat` — Live monitoring data sensor IoT',
-                    ].join('\n'),
-                    inline: false,
-                },
-                {
-                    name: '🧠 ML Commands',
-                    value: [
-                        '`/predict` — Klasifikasi gambar (demo ML)',
-                        '`/classify` — Klasifikasi teks (demo NLP)',
-                        '`/dataset` — Cari dataset di Kaggle',
-                        '`/eval` — Penjelasan metrik evaluasi ML',
-                    ].join('\n'),
-                    inline: false,
-                },
                 {
                     name: '👤 Umum',
                     value: [
