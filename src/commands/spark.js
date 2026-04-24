@@ -110,8 +110,14 @@ module.exports = {
                 await commands[subcommand].execute(interaction);
             } catch (error) {
                 console.error(`[ERROR] Gagal eksekusi subcommand ${subcommand}:`, error);
+                
+                // Cek apakah interaksi masih bisa dijawab
                 if (!interaction.replied && !interaction.deferred) {
-                    await interaction.reply({ content: '❌ Terjadi kesalahan saat menjalankan perintah ini.', ephemeral: true });
+                    try {
+                        await interaction.reply({ content: '❌ Terjadi kesalahan saat menjalankan perintah ini.', ephemeral: true });
+                    } catch (replyError) {
+                        console.error('[ERROR] Gagal mengirim pesan error:', replyError.message);
+                    }
                 }
             }
         } else {

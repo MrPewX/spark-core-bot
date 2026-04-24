@@ -1,18 +1,27 @@
 const { EmbedBuilder } = require('discord.js');
+const axios = require('axios');
 const config = require('../config');
 
 let monitorInterval;
+let publicIP = 'Detecting...';
 const startTime = Date.now();
+
+// Ambil IP publik sekali saja
+async function updateIP() {
+    try {
+        const res = await axios.get('https://api.ipify.org?format=json');
+        publicIP = res.data.ip;
+    } catch (err) {
+        publicIP = 'Unavailable';
+    }
+}
 
 async function sendStatus(client) {
     const channelId = config.channels.monitor;
     if (!channelId || channelId === 'YOUR_MONITOR_CHANNEL_ID') return;
 
     const channel = await client.channels.fetch(channelId).catch(() => null);
-    if (!channel) {
-        console.warn('⚠️ Monitor Channel tidak ditemukan. Pastikan MONITOR_CHANNEL_ID benar.');
-        return;
-    }
+    if (!channel) return;
 
     // Hitung Uptime
     const uptime = Math.floor((Date.now() - startTime) / 1000);
@@ -22,20 +31,23 @@ async function sendStatus(client) {
     const embed = new EmbedBuilder()
         .setColor(config.branding.color)
         .setTitle('🖥️ Spark-Core | Live Status Monitor')
-        .setDescription('Laporan status sistem real-time dari server Hugging Face.')
+        .setDescription(`Laporan status sistem real-time dari server **Back4App**.`)
         .addFields(
+            { name: '🤖 Bot Name', value: `**${client.user.username}**`, inline: true },
+            { name: '🏰 Discord', value: `**${channel.guild.name}**`, inline: true },
+            { name: '🌐 IP Address', value: `\`${publicIP}\``, inline: true },
             { name: '🟢 Status', value: 'Online & Active', inline: true },
-            { name: '⏱️ Uptime', value: `${hours} jam ${minutes} menit`, inline: true },
-            { name: '📡 Latensi', value: `${client.ws.ping}ms`, inline: true },
+            { name: '⏱️ Uptime', value: `${hours}h ${minutes}m`, inline: true },
+            { name: '📡 Latensi', value: `${client.ws.ping > 0 ? client.ws.ping : '...'}ms`, inline: true },
             { name: '💾 Memory', value: `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} MB`, inline: true },
-            { name: '🏠 Servers', value: `${client.guilds.cache.size} Server`, inline: true },
+            { name: '🏠 Servers', value: `${client.guilds.cache.size} Servers`, inline: true },
             { name: '🕒 Last Update', value: `<t:${Math.floor(Date.now() / 1000)}:R>`, inline: true }
         )
-        .setFooter({ text: 'Spark Community Monitor' })
+        .setFooter({ text: 'Spark Community Monitor | v2.0' })
         .setTimestamp();
 
     // Cari pesan lama untuk di-edit agar tidak spam
-    const messages = await channel.messages.fetch({ limit: 10 }).catch(() => []);
+    const messages = await channel.messages.fetch({ limit: 20 }).catch(() => []);
     const lastStatus = messages.find(m => m.author.id === client.user.id && m.embeds[0]?.title?.includes('Status Monitor'));
 
     if (lastStatus) {
@@ -47,6 +59,9 @@ async function sendStatus(client) {
 
 module.exports = {
     start(client) {
+        // Ambil IP pertama kali
+        updateIP();
+
         // Kirim laporan pertama saat bot nyala
         setTimeout(() => sendStatus(client), 5000);
 
