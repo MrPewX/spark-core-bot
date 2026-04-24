@@ -7,6 +7,11 @@ const config = require('./config');
 const newsAggregator = require('./services/newsAggregator');
 const monitorService = require('./services/monitorService');
 const { setGlobalDispatcher, Agent } = require('undici');
+const tls = require('tls');
+
+// Paksa gunakan TLS v1.2 jika v1.3 gagal di Hugging Face
+tls.DEFAULT_MIN_VERSION = 'TLSv1.2';
+tls.DEFAULT_MAX_VERSION = 'TLSv1.3';
 
 // ─── High Performance Agent for Hugging Face ───
 setGlobalDispatcher(new Agent({ 
