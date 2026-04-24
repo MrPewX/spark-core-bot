@@ -3,13 +3,12 @@
 // ============================================
 
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
-const { setGlobalDispatcher, Agent } = require('undici');
 const fs = require('fs');
 const path = require('path');
 const config = require('./config');
 const newsAggregator = require('./services/newsAggregator');
 
-// (Global dispatcher removed for better compatibility with Hugging Face)
+// (Global dispatcher removed for better compatibility)
 
 // Validate token
 if (!config.token || config.token === 'YOUR_BOT_TOKEN_HERE') {
