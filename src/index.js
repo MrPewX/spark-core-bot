@@ -78,7 +78,7 @@ for (const file of eventFiles) {
 }
 
 // ─── Start News Aggregator ───
-client.once('clientReady', () => {
+client.once('ready', () => {
     newsAggregator.start(client);
 });
 

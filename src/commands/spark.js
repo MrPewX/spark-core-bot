@@ -65,9 +65,14 @@ module.exports = {
             try {
                 await commands[subcommand].execute(interaction);
             } catch (error) {
-                console.error(error);
-                await interaction.reply({ content: 'Terjadi kesalahan saat menjalankan perintah ini.', ephemeral: true });
+                console.error(`[ERROR] Gagal eksekusi subcommand ${subcommand}:`, error);
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({ content: '❌ Terjadi kesalahan saat menjalankan perintah ini.', ephemeral: true });
+                }
             }
+        } else {
+            console.warn(`[WARN] Subcommand ${subcommand} tidak ditemukan.`);
+            await interaction.reply({ content: '⚠️ Subcommand tidak ditemukan atau belum di-implementasi.', ephemeral: true });
         }
     },
 };

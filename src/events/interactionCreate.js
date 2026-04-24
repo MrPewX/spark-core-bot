@@ -8,10 +8,11 @@ module.exports = {
         // ─── Slash Commands ───
         if (interaction.isChatInputCommand()) {
             const command = interaction.client.commands.get(interaction.commandName);
+            console.log(`[LOG] Interaction: /${interaction.commandName} oleh ${interaction.user.tag}`);
 
             if (!command) {
-                console.warn(`[WARN] Command ${interaction.commandName} tidak ditemukan.`);
-                return;
+                console.warn(`[WARN] Command /${interaction.commandName} tidak ditemukan di client.commands.`);
+                return interaction.reply({ content: '❌ Perintah tidak dikenali oleh bot.', ephemeral: true });
             }
 
             try {

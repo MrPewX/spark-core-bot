@@ -3,7 +3,7 @@ const { ActivityType } = require('discord.js');
 const config = require('../config');
 
 module.exports = {
-    name: 'clientReady',
+    name: 'ready',
     once: true,
     execute(client) {
         console.log('');
@@ -15,6 +15,7 @@ module.exports = {
         console.log(`║  Guilds : ${String(client.guilds.cache.size).padEnd(30)}║`);
         console.log('╚══════════════════════════════════════════╝');
         console.log('');
+        console.log('🚀 Interaction handler siap menerima perintah!');
 
         // Set bot status
         client.user.setPresence({
