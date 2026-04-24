@@ -91,7 +91,8 @@ module.exports = {
                 .addChoices(
                     { name: 'Bayar Kas', value: 'bayar' },
                     { name: 'Cek Status', value: 'cek' },
-                    { name: 'Laporan Kas', value: 'laporan' }
+                    { name: 'Laporan Kas', value: 'laporan' },
+                    { name: 'Hapus Kas', value: 'hapus' }
                 ))
             .addUserOption(opt => opt.setName('user').setDescription('Untuk aksi bayar'))
             .addIntegerOption(opt => opt.setName('jumlah').setDescription('Untuk aksi bayar (Rp)'))

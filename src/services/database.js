@@ -59,9 +59,22 @@ module.exports = {
             (!filterYear || k.year === filterYear)
         );
     },
-    searchKas(query) {
+    deleteKas(name, month, year) {
+        const initialLength = db.kas.length;
+        db.kas = db.kas.filter(k => 
+            !(k.name.toLowerCase() === name.toLowerCase() && k.month === month && k.year === year)
+        );
+        const success = db.kas.length < initialLength;
+        if (success) save();
+        return success;
+    },
+    searchKas(query, month, year) {
         const q = query.toLowerCase();
-        return db.kas.filter(k => k.name.toLowerCase().includes(q) || k.userId === query);
+        return db.kas.filter(k => 
+            (k.name.toLowerCase().includes(q) || k.userId === query) &&
+            (!month || k.month === month) &&
+            (!year || k.year === year)
+        );
     },
     getAllKas() {
         return db.kas;

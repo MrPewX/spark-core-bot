@@ -40,12 +40,15 @@ module.exports = {
 
         if (aksi === 'cek') {
             const query = interaction.options.getString('query');
+            const month = interaction.options.getInteger('bulan');
+            const year = interaction.options.getInteger('tahun');
+
             if (!query) return interaction.reply({ content: '❌ Masukkan nama atau ID user!', ephemeral: true });
 
-            const results = db.searchKas(query);
+            const results = db.searchKas(query, month, year);
 
             if (results.length === 0) {
-                return interaction.reply({ content: `❌ Tidak ditemukan data kas untuk: **${query}**`, ephemeral: true });
+                return interaction.reply({ content: `❌ Tidak ditemukan data kas untuk: **${query}** ${month ? `pada bulan ${month}` : ''} ${year ? `tahun ${year}` : ''}`, ephemeral: true });
             }
 
             const embed = new EmbedBuilder()
@@ -55,6 +58,28 @@ module.exports = {
                 .setTimestamp();
 
             return interaction.reply({ embeds: [embed] });
+        }
+
+        if (aksi === 'hapus') {
+            if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+                return interaction.reply({ content: '❌ Hanya admin yang bisa menghapus kas!', ephemeral: true });
+            }
+
+            const name = interaction.options.getString('query');
+            const month = interaction.options.getInteger('bulan');
+            const year = interaction.options.getInteger('tahun');
+
+            if (!name || !month || !year) {
+                return interaction.reply({ content: '❌ Mohon masukkan nama (di kolom query), bulan, dan tahun untuk menghapus kas!', ephemeral: true });
+            }
+
+            const success = db.deleteKas(name, month, year);
+
+            if (success) {
+                return interaction.reply({ content: `✅ Berhasil menghapus data kas **${name}** periode **${month}/${year}**.` });
+            } else {
+                return interaction.reply({ content: `❌ Tidak ditemukan data kas **${name}** periode **${month}/${year}** untuk dihapus.`, ephemeral: true });
+            }
         }
 
         if (aksi === 'laporan') {
