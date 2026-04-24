@@ -12,7 +12,6 @@ const newsAggregator = require('./services/newsAggregator');
 const monitorService = require('./services/monitorService');
 
 // ─── Network Test & DNS Lookup ───
-const dns = require('dns');
 dns.lookup('discord.com', (err, address) => {
     console.log(`🔍 DNS Lookup: discord.com resolved to ${address || 'ERROR'}`);
 });
