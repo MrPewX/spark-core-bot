@@ -11,7 +11,12 @@ const config = require('./config');
 const newsAggregator = require('./services/newsAggregator');
 const monitorService = require('./services/monitorService');
 
-// (Network customizations removed for maximum compatibility)
+// ─── Network Test ───
+require('https').get('https://discord.com', (res) => {
+    console.log(`🌐 Network Test: Koneksi ke Discord ${res.statusCode === 200 ? 'BERHASIL' : 'GAGAL'}`);
+}).on('error', (err) => {
+    console.log(`🌐 Network Test: Koneksi ke Discord ERROR (${err.message})`);
+});
 
 // Validate token
 if (!config.token || config.token === 'YOUR_BOT_TOKEN_HERE') {
