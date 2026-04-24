@@ -9,11 +9,10 @@ const path = require('path');
 const config = require('./config');
 const newsAggregator = require('./services/newsAggregator');
 
-// Force global timeout & IPv4 agar tidak diputus koneksinya oleh cloud
+// Force global timeout agar tidak diputus koneksinya oleh cloud
 setGlobalDispatcher(new Agent({ 
     connect: { 
-        timeout: 60000,
-        family: 4 // Paksa gunakan IPv4 (Sangat Penting!)
+        timeout: 60000
     },
     headersTimeout: 60000,
     bodyTimeout: 60000
@@ -41,18 +40,18 @@ const client = new Client({
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
     ],
-    rest: {
-        timeout: 60000, // Tunggu 60 detik (default cuma 15 detik)
-    }
+    rest: { timeout: 60000 }
 });
 
 // ─── Load Commands ───
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
+
+// Hanya load file .js di folder commands (seperti spark.js)
 const commandFiles = fs.readdirSync(commandsPath).filter(f => f.endsWith('.js'));
 
 console.log('');
-console.log('📦 Loading commands...');
+console.log('📦 Loading main commands...');
 for (const file of commandFiles) {
     const command = require(path.join(commandsPath, file));
     if ('data' in command && 'execute' in command) {
