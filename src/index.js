@@ -8,7 +8,17 @@ const path = require('path');
 const config = require('./config');
 const newsAggregator = require('./services/newsAggregator');
 
-// (Global dispatcher removed for better compatibility)
+const { setGlobalDispatcher, Agent } = require('undici');
+
+// Paksa gunakan IPv4 untuk menembus timeout jaringan di Hugging Face
+setGlobalDispatcher(new Agent({ 
+    connect: { 
+        timeout: 30000,
+        family: 4 
+    }
+}));
+
+// (Global dispatcher configured for IPv4 compatibility)
 
 // Validate token
 if (!config.token || config.token === 'YOUR_BOT_TOKEN_HERE') {
