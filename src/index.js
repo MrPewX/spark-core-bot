@@ -34,7 +34,10 @@ const client = new Client({
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
-    ]
+    ],
+    rest: { 
+        timeout: 60000, // Tunggu hingga 60 detik untuk setiap request API
+    }
 });
 
 // ─── Load Commands ───
