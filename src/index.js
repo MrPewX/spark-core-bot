@@ -9,22 +9,7 @@ const config = require('./config');
 const newsAggregator = require('./services/newsAggregator');
 const monitorService = require('./services/monitorService');
 
-const { setGlobalDispatcher, Agent } = require('undici');
-
-// Paksa gunakan IPv4 untuk menembus timeout jaringan di Hugging Face
-// Paksa gunakan IPv4 dan perkuat keep-alive untuk Hugging Face
-setGlobalDispatcher(new Agent({ 
-    connect: { 
-        timeout: 60000,
-        family: 4 
-    },
-    headersTimeout: 60000,
-    bodyTimeout: 60000,
-    keepAliveTimeout: 30000,
-    keepAliveMaxTimeout: 60000
-}));
-
-// (Global dispatcher configured for IPv4 compatibility)
+// (Network customizations removed for maximum compatibility)
 
 // Validate token
 if (!config.token || config.token === 'YOUR_BOT_TOKEN_HERE') {
