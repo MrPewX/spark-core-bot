@@ -82,15 +82,75 @@ client.once('ready', () => {
     newsAggregator.start(client);
 });
 
-// ─── Keep-Alive Server (For Render/Railway) ───
+// ─── Monitoring Dashboard Stats ───
+const startTime = Date.now();
+
+// ─── Keep-Alive & Dashboard Server ───
 const http = require('http');
 const server = http.createServer((req, res) => {
-    res.writeHead(200);
-    res.end('Spark-Core is online! ⚡');
+    const uptime = Math.floor((Date.now() - startTime) / 1000);
+    const hours = Math.floor(uptime / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
+    const seconds = uptime % 60;
+
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Spark-Core | Status Hub</title>
+            <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&display=swap" rel="stylesheet">
+            <style>
+                body { font-family: 'Outfit', sans-serif; background: #0f172a; color: #f8fafc; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+                .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 2rem; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); width: 400px; text-align: center; }
+                .status-dot { width: 12px; height: 12px; background: #22c55e; border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 15px #22c55e; animation: pulse 2s infinite; }
+                h1 { font-weight: 600; letter-spacing: -1px; margin-bottom: 0.5rem; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+                .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+                .stat-box { background: rgba(15, 23, 42, 0.5); padding: 1rem; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05); }
+                .stat-label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+                .stat-value { font-size: 1.1rem; font-weight: 600; margin-top: 0.25rem; color: #e2e8f0; }
+                @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
+            </style>
+        </head>
+        <body>
+            <div class="glass">
+                <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                    <span class="status-dot"></span>
+                    <span style="color: #22c55e; font-weight: 600; font-size: 0.9rem;">SYSTEM ACTIVE</span>
+                </div>
+                <h1>Spark-Core Bot</h1>
+                <p style="color: #94a3b8; font-size: 0.9rem;">IoT & ML Community Hub</p>
+                
+                <div class="stat-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Uptime</div>
+                        <div class="stat-value">${hours}h ${minutes}m ${seconds}s</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Servers</div>
+                        <div class="stat-value">${client.guilds.cache.size}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Memory</div>
+                        <div class="stat-value">${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} MB</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Latensi</div>
+                        <div class="stat-value">${client.ws.ping}ms</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem; font-size: 0.7rem; color: #475569;">
+                    &copy; 2026 Spark Community &bull; Running on Hugging Face
+                </div>
+            </div>
+        </body>
+        </html>
+    `);
 });
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 7860;
 server.listen(PORT, () => {
-    console.log(`📡 Keep-alive server listening on port ${PORT}`);
+    console.log(`📡 Dashboard listening on port ${PORT}`);
 });
 
 // ─── Login ───

@@ -55,6 +55,33 @@ module.exports = {
         )
         .addSubcommand(sub => 
             sub.setName('eval').setDescription('Glossary istilah evaluasi model ML')
+        )
+
+        // ─── Subcommands Moderasi ───
+        .addSubcommand(sub => 
+            sub.setName('clear').setDescription('🗑️ Hapus pesan dalam jumlah banyak')
+            .addIntegerOption(opt => opt.setName('jumlah').setDescription('1-100').setRequired(true).setMinValue(1).setMaxValue(100))
+        )
+        .addSubcommand(sub => 
+            sub.setName('warn').setDescription('⚠️ Berikan peringatan kepada member')
+            .addUserOption(opt => opt.setName('user').setDescription('Target member').setRequired(true))
+            .addStringOption(opt => opt.setName('alasan').setDescription('Alasan').setRequired(true))
+        )
+
+        // ─── Subcommands Keuangan (Kas) ───
+        .addSubcommand(sub => 
+            sub.setName('kas').setDescription('💰 Manajemen Kas Komunitas')
+            .addStringOption(opt => opt.setName('aksi').setDescription('Pilih: bayar / cek / laporan').setRequired(true)
+                .addChoices(
+                    { name: 'Bayar Kas', value: 'bayar' },
+                    { name: 'Cek Status', value: 'cek' },
+                    { name: 'Laporan Kas', value: 'laporan' }
+                ))
+            .addUserOption(opt => opt.setName('user').setDescription('Untuk aksi bayar'))
+            .addIntegerOption(opt => opt.setName('jumlah').setDescription('Untuk aksi bayar (Rp)'))
+            .addIntegerOption(opt => opt.setName('bulan').setDescription('Untuk aksi bayar/laporan (1-12)'))
+            .addIntegerOption(opt => opt.setName('tahun').setDescription('Untuk aksi bayar/laporan'))
+            .addStringOption(opt => opt.setName('query').setDescription('Untuk aksi cek (Nama/ID)'))
         ),
 
     async execute(interaction) {
