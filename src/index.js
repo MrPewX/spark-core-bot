@@ -10,6 +10,9 @@ const path = require('path');
 const config = require('./config');
 const newsAggregator = require('./services/newsAggregator');
 const monitorService = require('./services/monitorService');
+ 
+// JURUS PAMUNGKAS: Abaikan verifikasi TLS (Hanya untuk tembus blokir HF)
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 // ─── Network Test & DNS Lookup ───
 dns.lookup('discord.com', (err, address) => {
