@@ -66,12 +66,18 @@ const startBot = async () => {
     await new Promise(r => setTimeout(r, 15000));
 
     try {
+        if (!config.token) {
+            console.error('❌ ERROR: DISCORD_TOKEN tidak ditemukan di environment variables!');
+            return;
+        }
         console.log('🔑 Mencoba login dengan profil Browser...');
         await client.login(config.token);
         console.log('✅ LOGIN BERHASIL!');
         loadModules();
     } catch (error) {
-        console.error('❌ Gagal:', error.message);
+        console.error('❌ Gagal Login:', error.message);
+        if (error.stack) console.error(error.stack);
+        console.log('🔄 Mencoba ulang dalam 30 detik...');
         setTimeout(startBot, 30000);
     }
 };
