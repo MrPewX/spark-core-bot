@@ -24,15 +24,14 @@ if (!config.token || config.token === 'YOUR_BOT_TOKEN_HERE') {
     process.exit(1);
 }
 
-// Create client with increased timeout for slow networks
+// Create client with standard configuration
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
-    ],
-    rest: { timeout: 60000 }
+    ]
 });
 
 // ─── Load Commands ───
@@ -86,12 +85,17 @@ server.listen(PORT, () => {
 
 // ─── Login ───
 const login = async () => {
-    console.log('🔑 Attempting to login...');
+    if (!config.token) {
+        console.error('❌ ERROR: DISCORD_TOKEN tidak ditemukan di environment!');
+        return;
+    }
+    console.log(`🔑 Attempting to login... (Token Length: ${config.token.length})`);
     try {
         await client.login(config.token);
     } catch (error) {
         console.error('❌ Gagal login ke Discord:', error.message);
-        process.exit(1);
+        console.log('🔄 Mencoba ulang dalam 15 detik...');
+        setTimeout(login, 15000);
     }
 };
 
