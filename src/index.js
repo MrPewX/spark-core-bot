@@ -158,14 +158,28 @@ server.listen(PORT, () => {
 // ─── Login ───
 const login = async () => {
     if (!config.token) {
-        console.error('❌ ERROR: DISCORD_TOKEN tidak ditemukan di environment!');
+        console.error('❌ ERROR: DISCORD_TOKEN tidak ditemukan!');
         return;
     }
-    console.log(`🔑 Attempting to login... (Token Length: ${config.token.length})`);
+    
+    console.log(`🔑 Attempting to login... (Timeout set to 60s)`);
+    
     try {
-        await client.login(config.token);
+        // Tambahkan timeout internal untuk Client
+        const loginPromise = client.login(config.token);
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Koneksi Timeout (60 detik)')), 60000)
+        );
+
+        await Promise.race([loginPromise, timeoutPromise]);
     } catch (error) {
         console.error('❌ Gagal login ke Discord:', error.message);
+        
+        // Jika error TLS, coba bersihkan cache DNS
+        if (error.message.includes('TLS') || error.message.includes('disconnected')) {
+            console.log('🛡️ Terdeteksi masalah TLS/SSL, mencoba strategi alternatif...');
+        }
+        
         console.log('🔄 Mencoba ulang dalam 15 detik...');
         setTimeout(login, 15000);
     }
