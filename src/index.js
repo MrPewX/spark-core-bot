@@ -9,14 +9,7 @@ const path = require('path');
 const config = require('./config');
 const newsAggregator = require('./services/newsAggregator');
 
-// Force global timeout agar tidak diputus koneksinya oleh cloud
-setGlobalDispatcher(new Agent({ 
-    connect: { 
-        timeout: 60000
-    },
-    headersTimeout: 60000,
-    bodyTimeout: 60000
-}));
+// (Global dispatcher removed for better compatibility with Hugging Face)
 
 // Validate token
 if (!config.token || config.token === 'YOUR_BOT_TOKEN_HERE') {
