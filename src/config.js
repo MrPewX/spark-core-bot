@@ -14,6 +14,7 @@ module.exports = {
     channels: {
         welcome: process.env.WELCOME_CHANNEL_ID,
         news: process.env.NEWS_CHANNEL_ID,
+        monitor: process.env.MONITOR_CHANNEL_ID,
     },
 
     // Role IDs

@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const config = require('./config');
 const newsAggregator = require('./services/newsAggregator');
+const monitorService = require('./services/monitorService');
 
 const { setGlobalDispatcher, Agent } = require('undici');
 
@@ -77,9 +78,10 @@ for (const file of eventFiles) {
     console.log(`  ✅ ${event.name}`);
 }
 
-// ─── Start News Aggregator ───
+// ─── Start Services ───
 client.once('ready', () => {
     newsAggregator.start(client);
+    monitorService.start(client);
 });
 
 // ─── Monitoring Dashboard Stats ───
