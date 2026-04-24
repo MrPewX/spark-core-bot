@@ -1,14 +1,22 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
-const dns = require('dns');
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
+const https = require('https');
 const config = require('./config');
 
-// Paksa IPv4 untuk Hugging Face
-dns.setDefaultResultOrder('ipv4first');
+// ─── GLOBAL NETWORK PATCH (Jurus Bayangan) ───
+// Memaksa seluruh koneksi HTTPS (termasuk Discord) menggunakan IPv4
+const originalRequest = https.request;
+https.request = function(options, callback) {
+    if (typeof options === 'object') {
+        options.family = 4;
+        options.timeout = 60000;
+    }
+    return originalRequest.call(this, options, callback);
+};
 
-// Inisialisasi Client dengan timeout tinggi
+// Inisialisasi Client
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -21,7 +29,7 @@ const client = new Client({
 
 client.commands = new Collection();
 
-// ─── Web Dashboard (Wajib agar HF tetap hidup) ───
+// ─── Web Dashboard ───
 const startTime = Date.now();
 http.createServer((req, res) => {
     const uptime = Math.floor((Date.now() - startTime) / 1000);
@@ -29,9 +37,8 @@ http.createServer((req, res) => {
     res.end(`<h1>Spark-Core Status: ONLINE</h1><p>Uptime: ${uptime}s</p>`);
 }).listen(process.env.PORT || 7860);
 
-// ─── Loading Function (Dijalankan SETELAH Online) ───
+// ─── Loading Function ───
 const loadModules = () => {
-    // Load Commands
     const commandsPath = path.join(__dirname, 'commands');
     const commandFiles = fs.readdirSync(commandsPath).filter(f => f.endsWith('.js'));
     for (const file of commandFiles) {
@@ -39,7 +46,6 @@ const loadModules = () => {
         if (command.data && command.execute) client.commands.set(command.data.name, command);
     }
 
-    // Load Events
     const eventsPath = path.join(__dirname, 'events');
     const eventFiles = fs.readdirSync(eventsPath).filter(f => f.endsWith('.js'));
     for (const file of eventFiles) {
@@ -48,7 +54,6 @@ const loadModules = () => {
         else client.on(event.name, (...args) => event.execute(...args));
     }
 
-    // Load Services
     const newsAggregator = require('./services/newsAggregator');
     const monitorService = require('./services/monitorService');
     newsAggregator.start(client);
@@ -57,19 +62,16 @@ const loadModules = () => {
     console.log(`✅ Semua fitur (Moderasi, Kas, Monitor) telah AKTIF!`);
 };
 
-// ─── Login Logic dengan Retry ───
+// ─── Login Logic ───
 const startBot = async () => {
-    console.log('⏳ Menunggu stabilitas jaringan (5 detik)...');
+    console.log('⏳ Menyeimbangkan jaringan...');
     await new Promise(resolve => setTimeout(resolve, 5000));
 
     try {
         console.log('🔑 Mencoba login ke Discord...');
         await client.login(config.token);
         console.log('✅ BERHASIL LOGIN!');
-        
-        // Panggil loading modul SETELAH login berhasil
         loadModules();
-        
     } catch (error) {
         console.error('❌ Gagal login:', error.message);
         console.log('🔄 Mencoba ulang dalam 30 detik...');
