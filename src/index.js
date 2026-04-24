@@ -11,7 +11,12 @@ const config = require('./config');
 const newsAggregator = require('./services/newsAggregator');
 const monitorService = require('./services/monitorService');
 
-// ─── Network Test ───
+// ─── Network Test & DNS Lookup ───
+const dns = require('dns');
+dns.lookup('discord.com', (err, address) => {
+    console.log(`🔍 DNS Lookup: discord.com resolved to ${address || 'ERROR'}`);
+});
+
 require('https').get('https://discord.com', (res) => {
     console.log(`🌐 Network Test: Koneksi ke Discord ${res.statusCode === 200 ? 'BERHASIL' : 'GAGAL'}`);
 }).on('error', (err) => {
