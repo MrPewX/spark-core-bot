@@ -5,13 +5,15 @@ const http = require('http');
 const https = require('https');
 const config = require('./config');
 
-// ─── GLOBAL NETWORK PATCH (Jurus Bayangan) ───
-// Memaksa seluruh koneksi HTTPS (termasuk Discord) menggunakan IPv4
+// ─── Browser Spoofing ───
+const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
 const originalRequest = https.request;
 https.request = function(options, callback) {
     if (typeof options === 'object') {
         options.family = 4;
-        options.timeout = 60000;
+        options.headers = options.headers || {};
+        options.headers['User-Agent'] = USER_AGENT;
     }
     return originalRequest.call(this, options, callback);
 };
@@ -24,7 +26,10 @@ const client = new Client({
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
     ],
-    rest: { timeout: 60000 }
+    rest: { 
+        timeout: 60000,
+        userAgentExtra: USER_AGENT
+    }
 });
 
 client.commands = new Collection();
@@ -32,12 +37,11 @@ client.commands = new Collection();
 // ─── Web Dashboard ───
 const startTime = Date.now();
 http.createServer((req, res) => {
-    const uptime = Math.floor((Date.now() - startTime) / 1000);
     res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(`<h1>Spark-Core Status: ONLINE</h1><p>Uptime: ${uptime}s</p>`);
+    res.end(`<h1>Spark-Core: STATUS ACTIVE</h1><p>Uptime: ${Math.floor((Date.now() - startTime)/1000)}s</p>`);
 }).listen(process.env.PORT || 7860);
 
-// ─── Loading Function ───
+// ─── Loading Modules ───
 const loadModules = () => {
     const commandsPath = path.join(__dirname, 'commands');
     const commandFiles = fs.readdirSync(commandsPath).filter(f => f.endsWith('.js'));
@@ -45,7 +49,6 @@ const loadModules = () => {
         const command = require(path.join(commandsPath, file));
         if (command.data && command.execute) client.commands.set(command.data.name, command);
     }
-
     const eventsPath = path.join(__dirname, 'events');
     const eventFiles = fs.readdirSync(eventsPath).filter(f => f.endsWith('.js'));
     for (const file of eventFiles) {
@@ -53,28 +56,22 @@ const loadModules = () => {
         if (event.once) client.once(event.name, (...args) => event.execute(...args));
         else client.on(event.name, (...args) => event.execute(...args));
     }
-
-    const newsAggregator = require('./services/newsAggregator');
-    const monitorService = require('./services/monitorService');
-    newsAggregator.start(client);
-    monitorService.start(client);
-    
-    console.log(`✅ Semua fitur (Moderasi, Kas, Monitor) telah AKTIF!`);
+    require('./services/newsAggregator').start(client);
+    require('./services/monitorService').start(client);
 };
 
-// ─── Login Logic ───
+// ─── Startup Logic ───
 const startBot = async () => {
-    console.log('⏳ Menyeimbangkan jaringan...');
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    console.log('⏳ Menunggu stabilitas sistem (15 detik)...');
+    await new Promise(r => setTimeout(r, 15000));
 
     try {
-        console.log('🔑 Mencoba login ke Discord...');
+        console.log('🔑 Mencoba login dengan profil Browser...');
         await client.login(config.token);
-        console.log('✅ BERHASIL LOGIN!');
+        console.log('✅ LOGIN BERHASIL!');
         loadModules();
     } catch (error) {
-        console.error('❌ Gagal login:', error.message);
-        console.log('🔄 Mencoba ulang dalam 30 detik...');
+        console.error('❌ Gagal:', error.message);
         setTimeout(startBot, 30000);
     }
 };
