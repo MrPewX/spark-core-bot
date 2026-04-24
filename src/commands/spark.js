@@ -67,6 +67,22 @@ module.exports = {
             .addUserOption(opt => opt.setName('user').setDescription('Target member').setRequired(true))
             .addStringOption(opt => opt.setName('alasan').setDescription('Alasan').setRequired(true))
         )
+        .addSubcommand(sub => 
+            sub.setName('kick').setDescription('👢 Mengeluarkan member dari server')
+            .addUserOption(opt => opt.setName('user').setDescription('Target member').setRequired(true))
+            .addStringOption(opt => opt.setName('alasan').setDescription('Alasan').setRequired(true))
+        )
+        .addSubcommand(sub => 
+            sub.setName('ban').setDescription('🔨 Memblokir member secara permanen')
+            .addUserOption(opt => opt.setName('user').setDescription('Target member').setRequired(true))
+            .addStringOption(opt => opt.setName('alasan').setDescription('Alasan').setRequired(true))
+        )
+        .addSubcommand(sub => 
+            sub.setName('timeout').setDescription('🔇 Membisukan member untuk sementara')
+            .addUserOption(opt => opt.setName('user').setDescription('Target member').setRequired(true))
+            .addIntegerOption(opt => opt.setName('durasi').setDescription('Durasi dalam menit').setRequired(true))
+            .addStringOption(opt => opt.setName('alasan').setDescription('Alasan').setRequired(true))
+        )
 
         // ─── Subcommands Keuangan (Kas) ───
         .addSubcommand(sub => 
