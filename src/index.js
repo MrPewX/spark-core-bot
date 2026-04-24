@@ -93,27 +93,14 @@ server.listen(PORT, () => {
     console.log(`📡 Keep-alive server listening on port ${PORT}`);
 });
 
-// ─── Network Test & Login ───
+// ─── Login ───
 const login = async () => {
-    console.log('');
-    console.log('🌐 Testing network connectivity...');
-    try {
-        const { request } = require('undici');
-        await request('https://discord.com/api/v10/gateway');
-        console.log('✅ Network OK: Can reach Discord API');
-    } catch (e) {
-        console.error('❌ Network Error: Cannot reach Discord API');
-        console.error(e.message);
-    }
-
     console.log('🔑 Attempting to login...');
     try {
         await client.login(config.token);
     } catch (error) {
-        console.error('❌ Gagal login ke Discord:');
-        console.error(error.message);
-        console.log('🔄 Mencoba kembali dalam 10 detik...');
-        setTimeout(login, 10000);
+        console.error('❌ Gagal login ke Discord:', error.message);
+        process.exit(1);
     }
 };
 
