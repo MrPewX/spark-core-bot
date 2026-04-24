@@ -28,6 +28,12 @@ module.exports = {
         .addSubcommand(sub => 
             sub.setName('project-submit').setDescription('Showcase project IoT/ML kamu ke komunitas')
         )
+        .addSubcommand(sub => 
+            sub.setName('say').setDescription('📢 Kirim pesan melalui bot ke channel tertentu')
+            .addChannelOption(opt => opt.setName('channel').setDescription('Channel tujuan').setRequired(true))
+            .addStringOption(opt => opt.setName('pesan').setDescription('Isi pesan yang ingin dikirim').setRequired(true))
+            .addBooleanOption(opt => opt.setName('embed').setDescription('Kirim sebagai embed? (Default: No)'))
+        )
 
         // ─── Subcommands IoT ───
         .addSubcommand(sub => 
