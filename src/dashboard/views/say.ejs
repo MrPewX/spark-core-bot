@@ -1,0 +1,114 @@
+<%- include('partials/header') %>
+
+<div class="header">
+    <h1>Kirim Pesan (Say)</h1>
+</div>
+
+<div class="card">
+    <form id="say-form">
+        <div class="form-group">
+            <label for="channel">Pilih Channel Target</label>
+            <select id="channel" class="form-control" required style="cursor: pointer; appearance: auto;">
+                <% if (channels.length > 0) { %>
+                    <% channels.forEach(ch => { %>
+                        <option value="<%= ch.id %>">#<%= ch.name %></option>
+                    <% }) %>
+                <% } else { %>
+                    <option value="">Tidak ada channel tersedia</option>
+                <% } %>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="useEmbed" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" id="useEmbed" style="width: 1.2rem; height: 1.2rem; accent-color: var(--accent);">
+                <span>Kirim sebagai Embed Message</span>
+            </label>
+        </div>
+
+        <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <label for="message">Pesan / Konten</label>
+                <small style="color: var(--text-secondary); font-size: 0.8rem;">Gunakan 'Tab' atau 'Enter' untuk mengatur posisi teks.</small>
+            </div>
+            <textarea id="message" class="form-control" required placeholder="Tuliskan pesanmu di sini..." style="font-family: monospace; white-space: pre-wrap; margin-top: 0.5rem;"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">
+            Kirim Pesan ke Channel
+        </button>
+    </form>
+    
+    <div id="status-message" style="margin-top: 1rem; text-align: center; font-weight: 500; display: none; padding: 0.75rem; border-radius: 8px;"></div>
+</div>
+
+<script>
+    // Handle tab key to actually insert a tab instead of changing focus
+    document.getElementById('message').addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+
+            // Set textarea value to: text before caret + tab + text after caret
+            this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+
+            // Put caret at right position again
+            this.selectionStart = this.selectionEnd = start + 1;
+        }
+    });
+
+    document.getElementById('say-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const channelId = document.getElementById('channel').value;
+        const message = document.getElementById('message').value;
+        const useEmbed = document.getElementById('useEmbed').checked;
+        const statusEl = document.getElementById('status-message');
+
+        if (!channelId) {
+            statusEl.textContent = '❌ Pilih channel terlebih dahulu.';
+            statusEl.style.display = 'block';
+            statusEl.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
+            statusEl.style.color = 'var(--danger)';
+            return;
+        }
+
+        const btn = this.querySelector('button');
+        btn.disabled = true;
+        btn.textContent = 'Mengirim...';
+
+        try {
+            const res = await fetch('/api/say', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ channelId, message, useEmbed })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                statusEl.textContent = '✅ Pesan berhasil dikirim!';
+                statusEl.style.backgroundColor = 'rgba(16, 185, 129, 0.15)';
+                statusEl.style.color = 'var(--success)';
+                document.getElementById('message').value = '';
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (err) {
+            statusEl.textContent = '❌ Gagal mengirim pesan: ' + err.message;
+            statusEl.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
+            statusEl.style.color = 'var(--danger)';
+        } finally {
+            statusEl.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Kirim Pesan ke Channel';
+            
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 3000);
+        }
+    });
+</script>
+
+<%- include('partials/footer') %>

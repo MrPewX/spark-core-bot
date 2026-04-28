@@ -1,0 +1,16 @@
+    </main>
+    <script>
+        // Set active link
+        const path = window.location.pathname;
+        const navIdMap = {
+            '/': 'nav-home',
+            '/kas': 'nav-kas',
+            '/say': 'nav-say'
+        };
+        const id = navIdMap[path];
+        if (id) {
+            document.getElementById(id).classList.add('active');
+        }
+    </script>
+</body>
+</html>

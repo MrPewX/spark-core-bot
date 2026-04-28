@@ -36,10 +36,7 @@ client.commands = new Collection();
 
 // ─── Web Dashboard ───
 const startTime = Date.now();
-http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(`<h1>Spark-Core: STATUS ACTIVE</h1><p>Uptime: ${Math.floor((Date.now() - startTime)/1000)}s</p>`);
-}).listen(process.env.PORT || 8080);
+require('./dashboard/server').start(client, startTime);
 
 // ─── Loading Modules ───
 const loadModules = () => {

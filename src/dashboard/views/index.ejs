@@ -1,0 +1,44 @@
+<%- include('partials/header') %>
+
+<div class="header">
+    <h1>Overview</h1>
+    <span class="badge badge-success">Bot Status: <%= status %></span>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card stat-card">
+        <h3>Uptime Bot</h3>
+        <div class="value" id="uptime-display"><%= uptime %>s</div>
+    </div>
+    <div class="card stat-card">
+        <h3>Total Command Module</h3>
+        <div class="value"><%= commands.length %></div>
+    </div>
+    <div class="card stat-card">
+        <h3>Bot Identity</h3>
+        <div class="value" style="font-size: 1.5rem;"><%= botName %></div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 1.5rem;">Loaded Commands</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+        <% commands.forEach(cmd => { %>
+            <span class="badge badge-primary">/<%= cmd %></span>
+        <% }) %>
+    </div>
+</div>
+
+<script>
+    let uptime = <%= uptime %>;
+    const uptimeEl = document.getElementById('uptime-display');
+    setInterval(() => {
+        uptime++;
+        const hours = Math.floor(uptime / 3600);
+        const minutes = Math.floor((uptime % 3600) / 60);
+        const seconds = uptime % 60;
+        uptimeEl.textContent = `${hours}h ${minutes}m ${seconds}s`;
+    }, 1000);
+</script>
+
+<%- include('partials/footer') %>

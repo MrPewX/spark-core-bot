@@ -1,0 +1,55 @@
+<%- include('partials/header') %>
+
+<div class="header">
+    <h1>Manajemen Kas</h1>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card stat-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1)); border-color: rgba(16, 185, 129, 0.3);">
+        <h3>Total Saldo Kas</h3>
+        <div class="value">Rp <%= totalKas.toLocaleString('id-ID') %></div>
+    </div>
+    <div class="card stat-card">
+        <h3>Total Transaksi</h3>
+        <div class="value"><%= kasData.length %></div>
+    </div>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2>Riwayat Transaksi</h2>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Nama User</th>
+                    <th>ID User</th>
+                    <th>Periode</th>
+                    <th>Jumlah</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (kasData.length > 0) { %>
+                    <% kasData.sort((a,b) => b.timestamp - a.timestamp).forEach(kas => { %>
+                        <tr>
+                            <td><%= new Date(kas.timestamp).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}) %></td>
+                            <td style="font-weight: 500;"><%= kas.name %></td>
+                            <td style="color: var(--text-secondary);"><%= kas.userId %></td>
+                            <td><%= kas.month %>/<%= kas.year %></td>
+                            <td style="color: var(--success); font-weight: 600;">+Rp <%= kas.amount.toLocaleString('id-ID') %></td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-secondary);">Tidak ada data transaksi kas.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<%- include('partials/footer') %>
