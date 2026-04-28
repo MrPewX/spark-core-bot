@@ -1,11 +1,15 @@
     </main>
     <script>
-        // Set active link
+        // Set active navigation link
         const path = window.location.pathname;
         const navIdMap = {
             '/': 'nav-home',
             '/kas': 'nav-kas',
-            '/say': 'nav-say'
+            '/say': 'nav-say',
+            '/moderation': 'nav-mod',
+            '/iot': 'nav-iot',
+            '/ml': 'nav-ml',
+            '/commands': 'nav-commands'
         };
         const id = navIdMap[path];
         if (id) {

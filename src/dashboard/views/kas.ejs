@@ -1,55 +1,278 @@
 <%- include('partials/header') %>
 
 <div class="header">
-    <h1>Manajemen Kas</h1>
+    <div>
+        <h1>💰 Manajemen Kas</h1>
+        <p class="header-subtitle">Kelola keuangan komunitas Spark</p>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('addModal').classList.add('show')">
+        ＋ Tambah Kas
+    </button>
 </div>
 
+<!-- Stats -->
 <div class="dashboard-grid">
-    <div class="card stat-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1)); border-color: rgba(16, 185, 129, 0.3);">
+    <div class="card stat-card">
+        <div class="stat-icon stat-icon-green">💵</div>
         <h3>Total Saldo Kas</h3>
-        <div class="value">Rp <%= totalKas.toLocaleString('id-ID') %></div>
+        <div class="value text-green">Rp <%= totalKas.toLocaleString('id-ID') %></div>
     </div>
     <div class="card stat-card">
+        <div class="stat-icon stat-icon-blue">📊</div>
         <h3>Total Transaksi</h3>
         <div class="value"><%= kasData.length %></div>
     </div>
+    <div class="card stat-card">
+        <div class="stat-icon stat-icon-orange">📅</div>
+        <h3>Bulan Ini</h3>
+        <% 
+            const now = new Date();
+            const thisMonthCount = kasData.filter(k => k.month === (now.getMonth()+1) && k.year === now.getFullYear()).length;
+        %>
+        <div class="value"><%= thisMonthCount %> transaksi</div>
+    </div>
 </div>
 
+<!-- Filter Bar -->
 <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h2>Riwayat Transaksi</h2>
+    <div class="section-title">
+        <h2>📋 Riwayat Transaksi</h2>
+    </div>
+
+    <div class="filter-bar">
+        <div class="form-group">
+            <label>Filter Hari</label>
+            <input type="date" id="filterDate" class="form-control" onchange="applyFilter()">
+        </div>
+        <div class="form-group">
+            <label>Filter Bulan</label>
+            <select id="filterMonth" class="form-control" onchange="applyFilter()">
+                <option value="">Semua Bulan</option>
+                <option value="1">Januari</option>
+                <option value="2">Februari</option>
+                <option value="3">Maret</option>
+                <option value="4">April</option>
+                <option value="5">Mei</option>
+                <option value="6">Juni</option>
+                <option value="7">Juli</option>
+                <option value="8">Agustus</option>
+                <option value="9">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Filter Tahun</label>
+            <select id="filterYear" class="form-control" onchange="applyFilter()">
+                <option value="">Semua Tahun</option>
+                <% 
+                    const years = [...new Set(kasData.map(k => k.year))].sort((a,b) => b-a);
+                    if (years.length === 0) years.push(new Date().getFullYear());
+                    years.forEach(y => { 
+                %>
+                    <option value="<%= y %>"><%= y %></option>
+                <% }) %>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Cari Nama</label>
+            <input type="text" id="filterName" class="form-control" placeholder="Ketik nama..." oninput="applyFilter()">
+        </div>
+        <div class="form-group" style="flex: 0;">
+            <label>&nbsp;</label>
+            <button class="btn btn-secondary btn-sm" onclick="resetFilter()">Reset</button>
+        </div>
     </div>
 
     <div class="table-container">
-        <table>
+        <table id="kasTable">
             <thead>
                 <tr>
+                    <th>No</th>
                     <th>Tanggal</th>
-                    <th>Nama User</th>
+                    <th>Nama</th>
                     <th>ID User</th>
                     <th>Periode</th>
                     <th>Jumlah</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="kasTableBody">
                 <% if (kasData.length > 0) { %>
-                    <% kasData.sort((a,b) => b.timestamp - a.timestamp).forEach(kas => { %>
-                        <tr>
+                    <% kasData.sort((a,b) => b.timestamp - a.timestamp).forEach((kas, i) => { %>
+                        <tr class="kas-row" 
+                            data-name="<%= kas.name.toLowerCase() %>" 
+                            data-month="<%= kas.month %>" 
+                            data-year="<%= kas.year %>"
+                            data-date="<%= new Date(kas.timestamp).toISOString().split('T')[0] %>">
+                            <td style="color: var(--text-muted);"><%= i + 1 %></td>
                             <td><%= new Date(kas.timestamp).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}) %></td>
-                            <td style="font-weight: 500;"><%= kas.name %></td>
-                            <td style="color: var(--text-secondary);"><%= kas.userId %></td>
-                            <td><%= kas.month %>/<%= kas.year %></td>
-                            <td style="color: var(--success); font-weight: 600;">+Rp <%= kas.amount.toLocaleString('id-ID') %></td>
+                            <td style="font-weight: 600;"><%= kas.name %></td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;"><%= kas.userId %></td>
+                            <td><span class="badge badge-primary"><%= kas.month %>/<%= kas.year %></span></td>
+                            <td style="color: var(--success); font-weight: 700;">+Rp <%= kas.amount.toLocaleString('id-ID') %></td>
+                            <td>
+                                <button class="btn-delete-row" onclick="deleteKas('<%= kas.name %>', <%= kas.month %>, <%= kas.year %>)">
+                                    🗑️ Hapus
+                                </button>
+                            </td>
                         </tr>
                     <% }) %>
                 <% } else { %>
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: var(--text-secondary);">Tidak ada data transaksi kas.</td>
+                    <tr id="emptyRow">
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="empty-icon">💰</div>
+                                <p>Belum ada data transaksi kas.</p>
+                            </div>
+                        </td>
                     </tr>
                 <% } %>
             </tbody>
         </table>
     </div>
+    <div id="filterInfo" style="margin-top: 0.75rem; font-size: 0.8rem; color: var(--text-muted); display: none;"></div>
 </div>
+
+<!-- Add Kas Modal -->
+<div class="modal-overlay" id="addModal">
+    <div class="modal">
+        <h2>➕ Tambah Laporan Kas</h2>
+        <form id="addKasForm">
+            <div class="form-group">
+                <label>Nama User</label>
+                <input type="text" id="kasName" class="form-control" placeholder="Masukkan nama" required>
+            </div>
+            <div class="form-group">
+                <label>User ID (Discord)</label>
+                <input type="text" id="kasUserId" class="form-control" placeholder="Contoh: 123456789012345678" required>
+            </div>
+            <div class="form-group">
+                <label>Jumlah (Rp)</label>
+                <input type="number" id="kasAmount" class="form-control" placeholder="Contoh: 50000" min="1" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Bulan (1-12)</label>
+                    <select id="kasMonth" class="form-control" required>
+                        <% for(let m=1; m<=12; m++) { %>
+                            <option value="<%= m %>" <%= m === (new Date().getMonth()+1) ? 'selected' : '' %>><%= m %> - <%= ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][m-1] %></option>
+                        <% } %>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tahun</label>
+                    <input type="number" id="kasYear" class="form-control" value="<%= new Date().getFullYear() %>" required>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('addModal').classList.remove('show')">Batal</button>
+                <button type="submit" class="btn btn-primary">💾 Simpan</button>
+            </div>
+        </form>
+        <div id="addStatus" style="display:none; margin-top:1rem;" class="status-message"></div>
+    </div>
+</div>
+
+<script>
+// ─── Filter Logic ───
+function applyFilter() {
+    const filterDate = document.getElementById('filterDate').value;
+    const filterMonth = document.getElementById('filterMonth').value;
+    const filterYear = document.getElementById('filterYear').value;
+    const filterName = document.getElementById('filterName').value.toLowerCase();
+
+    const rows = document.querySelectorAll('.kas-row');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const rowDate = row.dataset.date;
+        const rowMonth = row.dataset.month;
+        const rowYear = row.dataset.year;
+        const rowName = row.dataset.name;
+
+        let show = true;
+
+        if (filterDate && rowDate !== filterDate) show = false;
+        if (filterMonth && rowMonth !== filterMonth) show = false;
+        if (filterYear && rowYear !== filterYear) show = false;
+        if (filterName && !rowName.includes(filterName)) show = false;
+
+        row.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+    });
+
+    const info = document.getElementById('filterInfo');
+    if (filterDate || filterMonth || filterYear || filterName) {
+        info.style.display = 'block';
+        info.textContent = `Menampilkan ${visibleCount} dari ${rows.length} transaksi`;
+    } else {
+        info.style.display = 'none';
+    }
+}
+
+function resetFilter() {
+    document.getElementById('filterDate').value = '';
+    document.getElementById('filterMonth').value = '';
+    document.getElementById('filterYear').value = '';
+    document.getElementById('filterName').value = '';
+    applyFilter();
+}
+
+// ─── Add Kas ───
+document.getElementById('addKasForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const name = document.getElementById('kasName').value;
+    const userId = document.getElementById('kasUserId').value;
+    const amount = parseInt(document.getElementById('kasAmount').value);
+    const month = parseInt(document.getElementById('kasMonth').value);
+    const year = parseInt(document.getElementById('kasYear').value);
+
+    const statusEl = document.getElementById('addStatus');
+
+    try {
+        const res = await fetch('/api/kas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, userId, amount, month, year })
+        });
+        const data = await res.json();
+        if (data.success) {
+            statusEl.className = 'status-message status-success';
+            statusEl.textContent = '✅ Kas berhasil ditambahkan!';
+            statusEl.style.display = 'block';
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            throw new Error(data.error);
+        }
+    } catch (err) {
+        statusEl.className = 'status-message status-error';
+        statusEl.textContent = '❌ Gagal: ' + err.message;
+        statusEl.style.display = 'block';
+    }
+});
+
+// ─── Delete Kas ───
+async function deleteKas(name, month, year) {
+    if (!confirm(`Hapus data kas "${name}" periode ${month}/${year}?`)) return;
+
+    try {
+        const res = await fetch('/api/kas', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, month, year })
+        });
+        const data = await res.json();
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Gagal menghapus: ' + data.error);
+        }
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
+}
+</script>
 
 <%- include('partials/footer') %>

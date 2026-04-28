@@ -4,16 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spark-Core Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="description" content="Dashboard manajemen untuk Spark-Core Discord Bot — IoT & ML Community Hub">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <aside class="sidebar">
-        <div class="logo">⚡ Spark-Core</div>
-        <ul class="nav-links">
-            <li><a href="/" id="nav-home">Home Dashboard</a></li>
-            <li><a href="/kas" id="nav-kas">Manajemen Kas</a></li>
-            <li><a href="/say" id="nav-say">Pesan (Say)</a></li>
-        </ul>
+        <div class="logo">
+            <div class="logo-icon">⚡</div>
+            <span class="logo-text">Spark-Core</span>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Menu Utama</div>
+            <ul class="nav-links">
+                <li><a href="/" id="nav-home"><span class="nav-icon">🏠</span> Dashboard</a></li>
+                <li><a href="/kas" id="nav-kas"><span class="nav-icon">💰</span> Manajemen Kas</a></li>
+                <li><a href="/say" id="nav-say"><span class="nav-icon">📢</span> Kirim Pesan</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Moderasi</div>
+            <ul class="nav-links">
+                <li><a href="/moderation" id="nav-mod"><span class="nav-icon">🛡️</span> Moderasi</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">IoT & ML</div>
+            <ul class="nav-links">
+                <li><a href="/iot" id="nav-iot"><span class="nav-icon">📡</span> IoT Tools</a></li>
+                <li><a href="/ml" id="nav-ml"><span class="nav-icon">🧠</span> ML Tools</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Komunitas</div>
+            <ul class="nav-links">
+                <li><a href="/commands" id="nav-commands"><span class="nav-icon">⚙️</span> Semua Command</a></li>
+            </ul>
+        </div>
     </aside>
     <main class="main-content">

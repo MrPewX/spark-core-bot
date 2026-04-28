@@ -47,6 +47,9 @@ module.exports = {
         delete db.warnings[userId];
         save();
     },
+    getAllWarnings() {
+        return db.warnings || {};
+    },
 
     // --- Kas ---
     addKas(userId, name, amount, month, year) {

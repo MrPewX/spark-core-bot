@@ -1,0 +1,61 @@
+<%- include('partials/header') %>
+
+<div class="header">
+    <div>
+        <h1>🧠 ML Tools</h1>
+        <p class="header-subtitle">Machine Learning commands & glossary evaluasi model</p>
+    </div>
+</div>
+
+<!-- ML Commands -->
+<div class="card">
+    <div class="section-title">
+        <h2>⚡ ML Commands</h2>
+    </div>
+    <div class="command-grid">
+        <div class="command-card">
+            <div class="cmd-name">🔮 /spark predict</div>
+            <div class="cmd-desc">Demo klasifikasi gambar menggunakan model ML — kirim URL gambar untuk diprediksi</div>
+        </div>
+        <div class="command-card">
+            <div class="cmd-name">📝 /spark classify</div>
+            <div class="cmd-desc">Demo klasifikasi teks / sentimen analisis — input teks untuk dianalisis</div>
+        </div>
+        <div class="command-card">
+            <div class="cmd-name">📦 /spark dataset</div>
+            <div class="cmd-desc">Cari referensi dataset di Kaggle & HuggingFace berdasarkan topik</div>
+        </div>
+        <div class="command-card">
+            <div class="cmd-name">📚 /spark eval</div>
+            <div class="cmd-desc">Glossary lengkap istilah evaluasi model ML (Accuracy, F1, RMSE, dll)</div>
+        </div>
+    </div>
+</div>
+
+<!-- ML Glossary -->
+<div class="card" style="margin-top: 1.5rem;">
+    <div class="section-title">
+        <h2>📖 ML Evaluation Glossary</h2>
+    </div>
+    <div class="command-grid">
+        <% Object.keys(mlGlossary).forEach(key => { const item = mlGlossary[key]; %>
+            <div class="command-card">
+                <div class="cmd-name"><%= item.title %></div>
+                <div class="cmd-desc" style="margin-top: 0.5rem;">
+                    <div style="margin-bottom: 0.4rem; font-family: monospace; color: var(--accent-light); font-size: 0.8rem;">
+                        Formula: <%= item.formula %>
+                    </div>
+                    <div style="margin-bottom: 0.3rem;"><%= item.desc %></div>
+                    <div style="color: var(--text-muted); font-size: 0.78rem; margin-top: 0.3rem;">
+                        📌 <%= item.example %>
+                    </div>
+                    <div style="margin-top: 0.3rem; font-size: 0.78rem;">
+                        <%= item.warning %>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

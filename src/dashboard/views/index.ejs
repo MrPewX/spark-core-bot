@@ -1,30 +1,59 @@
 <%- include('partials/header') %>
 
 <div class="header">
-    <h1>Overview</h1>
-    <span class="badge badge-success">Bot Status: <%= status %></span>
+    <div>
+        <h1>🏠 Dashboard</h1>
+        <p class="header-subtitle">Monitoring & kontrol Spark-Core Bot</p>
+    </div>
+    <span class="badge badge-success">● Bot Status: <%= status %></span>
 </div>
 
 <div class="dashboard-grid">
     <div class="card stat-card">
+        <div class="stat-icon stat-icon-red">⏱️</div>
         <h3>Uptime Bot</h3>
         <div class="value" id="uptime-display"><%= uptime %>s</div>
     </div>
     <div class="card stat-card">
-        <h3>Total Command Module</h3>
+        <div class="stat-icon stat-icon-blue">⚙️</div>
+        <h3>Total Commands</h3>
         <div class="value"><%= commands.length %></div>
     </div>
     <div class="card stat-card">
+        <div class="stat-icon stat-icon-orange">🤖</div>
         <h3>Bot Identity</h3>
-        <div class="value" style="font-size: 1.5rem;"><%= botName %></div>
+        <div class="value" style="font-size: 1.3rem;"><%= botName %></div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-icon stat-icon-green">💰</div>
+        <h3>Total Saldo Kas</h3>
+        <div class="value text-green">Rp <%= totalKas.toLocaleString('id-ID') %></div>
     </div>
 </div>
 
+<!-- Quick Actions -->
 <div class="card">
-    <h2 style="margin-bottom: 1.5rem;">Loaded Commands</h2>
+    <div class="section-title">
+        <h2>⚡ Quick Actions</h2>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+        <a href="/kas" class="btn btn-primary">💰 Manajemen Kas</a>
+        <a href="/say" class="btn btn-secondary">📢 Kirim Pesan</a>
+        <a href="/moderation" class="btn btn-secondary">🛡️ Moderasi</a>
+        <a href="/iot" class="btn btn-secondary">📡 IoT Tools</a>
+        <a href="/ml" class="btn btn-secondary">🧠 ML Tools</a>
+    </div>
+</div>
+
+<!-- Loaded Commands -->
+<div class="card" style="margin-top: 1.5rem;">
+    <div class="section-title">
+        <h2>📦 Loaded Command Modules</h2>
+        <span class="badge badge-primary"><%= commands.length %> modules</span>
+    </div>
     <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
         <% commands.forEach(cmd => { %>
-            <span class="badge badge-primary">/<%= cmd %></span>
+            <span class="badge badge-primary" style="font-size: 0.82rem;">/<%= cmd %></span>
         <% }) %>
     </div>
 </div>

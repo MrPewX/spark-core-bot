@@ -1,0 +1,53 @@
+<%- include('partials/header') %>
+
+<div class="header">
+    <div>
+        <h1>📡 IoT Tools</h1>
+        <p class="header-subtitle">Referensi dan monitoring perangkat IoT</p>
+    </div>
+</div>
+
+<!-- IoT Commands -->
+<div class="card">
+    <div class="section-title">
+        <h2>⚡ IoT Commands</h2>
+    </div>
+    <div class="command-grid">
+        <div class="command-card">
+            <div class="cmd-name">📡 /spark status-alat</div>
+            <div class="cmd-desc">Monitoring status real-time alat IoT yang terhubung via API</div>
+        </div>
+        <div class="command-card">
+            <div class="cmd-name">📌 /spark pin-out</div>
+            <div class="cmd-desc">Lihat referensi pin-out MCU: ESP32, ESP8266, Arduino Uno/Nano, STM32</div>
+        </div>
+        <div class="command-card">
+            <div class="cmd-name">🔌 /spark check-mqtt</div>
+            <div class="cmd-desc">Cek status koneksi broker MQTT (HiveMQ default)</div>
+        </div>
+    </div>
+</div>
+
+<!-- Pinout Reference -->
+<div class="card" style="margin-top: 1.5rem;">
+    <div class="section-title">
+        <h2>📌 Pin-Out Reference</h2>
+    </div>
+    <div class="command-grid">
+        <% Object.keys(pinouts).forEach(key => { const mcu = pinouts[key]; %>
+            <div class="command-card">
+                <div class="cmd-name"><%= mcu.name %></div>
+                <div class="cmd-desc" style="margin-top: 0.5rem;">
+                    <div style="margin-bottom: 0.3rem;"><strong>GPIO:</strong> <%= mcu.gpio %></div>
+                    <div style="margin-bottom: 0.3rem;"><strong>ADC:</strong> <%= mcu.adc %></div>
+                    <div style="margin-bottom: 0.3rem;"><strong>PWM:</strong> <%= mcu.pwm %></div>
+                    <div style="margin-bottom: 0.3rem;"><strong>Comm:</strong> <%= mcu.comm %></div>
+                    <div style="margin-bottom: 0.3rem;"><strong>Wireless:</strong> <%= mcu.wireless %></div>
+                    <div><strong>Voltage:</strong> <%= mcu.voltage %></div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

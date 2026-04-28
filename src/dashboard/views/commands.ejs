@@ -1,0 +1,25 @@
+<%- include('partials/header') %>
+
+<div class="header">
+    <div>
+        <h1>⚙️ Semua Command</h1>
+        <p class="header-subtitle">Daftar lengkap command yang tersedia di Spark-Core Bot</p>
+    </div>
+    <span class="badge badge-primary"><%= commandList.length %> total commands</span>
+</div>
+
+<div class="card">
+    <div class="section-title">
+        <h2>📦 Command Modules</h2>
+    </div>
+    <div class="command-grid">
+        <% commandList.forEach(cmd => { %>
+            <div class="command-card">
+                <div class="cmd-name">/spark <%= cmd.name %></div>
+                <div class="cmd-desc"><%= cmd.description %></div>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

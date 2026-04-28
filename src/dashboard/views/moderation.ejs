@@ -1,0 +1,90 @@
+<%- include('partials/header') %>
+
+<div class="header">
+    <div>
+        <h1>🛡️ Panel Moderasi</h1>
+        <p class="header-subtitle">Kelola member dan keamanan server</p>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card stat-card">
+        <div class="stat-icon stat-icon-orange">⚠️</div>
+        <h3>Total Warnings</h3>
+        <div class="value"><%= totalWarnings %></div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-icon stat-icon-red">👥</div>
+        <h3>Users Warned</h3>
+        <div class="value"><%= warnedUsers %></div>
+    </div>
+</div>
+
+<!-- Moderation Actions -->
+<div class="card">
+    <div class="section-title">
+        <h2>⚡ Aksi Moderasi</h2>
+    </div>
+    <div class="command-grid">
+        <div class="command-card">
+            <div class="cmd-name">🗑️ /spark clear</div>
+            <div class="cmd-desc">Hapus pesan dalam jumlah banyak (1-100) di channel tertentu</div>
+        </div>
+        <div class="command-card">
+            <div class="cmd-name">⚠️ /spark warn</div>
+            <div class="cmd-desc">Berikan peringatan kepada member yang melanggar aturan</div>
+        </div>
+        <div class="command-card">
+            <div class="cmd-name">👢 /spark kick</div>
+            <div class="cmd-desc">Keluarkan member dari server Discord</div>
+        </div>
+        <div class="command-card">
+            <div class="cmd-name">🔨 /spark ban</div>
+            <div class="cmd-desc">Blokir member secara permanen dari server</div>
+        </div>
+        <div class="command-card">
+            <div class="cmd-name">🔇 /spark timeout</div>
+            <div class="cmd-desc">Bisukan member untuk durasi tertentu (dalam menit)</div>
+        </div>
+    </div>
+</div>
+
+<!-- Warning History -->
+<div class="card" style="margin-top: 1.5rem;">
+    <div class="section-title">
+        <h2>📋 Riwayat Warning</h2>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Jumlah Warning</th>
+                    <th>Warning Terakhir</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (warningList.length > 0) { %>
+                    <% warningList.forEach(w => { %>
+                        <tr>
+                            <td style="font-weight: 600;"><%= w.userId %></td>
+                            <td><span class="badge badge-warning"><%= w.count %> warning</span></td>
+                            <td style="color: var(--text-secondary);"><%= w.lastReason %></td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="3">
+                            <div class="empty-state">
+                                <div class="empty-icon">🛡️</div>
+                                <p>Tidak ada riwayat warning. Server aman!</p>
+                            </div>
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<%- include('partials/footer') %>
