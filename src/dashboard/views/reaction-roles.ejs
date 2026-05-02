@@ -6,10 +6,10 @@
         <p>Kelola pesan yang memberikan role otomatis saat bereaksi.</p>
     </div>
     <div class="header-actions" style="display: flex; gap: 0.5rem; align-items: center;">
-        <select id="syncChannelId" class="form-control" style="width: 200px;">
+        <select id="syncChannelId" class="form-control" style="width: 250px;">
             <option value="">-- Pilih Channel --</option>
             <% channels.forEach(channel => { %>
-                <option value="<%= channel.id %>">#<%= channel.name %></option>
+                <option value="<%= channel.id %>">#<%= channel.name %> (<%= channel.id %>)</option>
             <% }) %>
         </select>
         <button onclick="syncChannel()" class="btn btn-secondary">🔄 Sync Channel</button>

@@ -5,7 +5,7 @@ const config = require('../config');
 module.exports = {
     name: 'ready',
     once: true,
-    execute(client) {
+    async execute(client) {
         console.log('');
         console.log('╔══════════════════════════════════════════╗');
         console.log('║         ⚡ SPARK-CORE BOT ACTIVE ⚡       ║');

@@ -55,7 +55,7 @@
             <select id="syncChannelId" class="form-control" style="margin-bottom: 0.75rem;">
                 <option value="">-- Pilih Channel --</option>
                 <% channels.forEach(channel => { %>
-                    <option value="<%= channel.id %>">#<%= channel.name %></option>
+                    <option value="<%= channel.id %>">#<%= channel.name %> (<%= channel.id %>)</option>
                 <% }) %>
             </select>
             <button onclick="syncChannel()" class="btn btn-primary btn-block">🔄 Jalankan Sync</button>
