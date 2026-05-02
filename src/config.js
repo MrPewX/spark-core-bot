@@ -40,6 +40,34 @@ module.exports = {
     },
 
     // Bot Branding
+    // --- Reaction Roles Permanen (Auto-Sync on Startup) ---
+    permanentReactionRoles: [
+        { 
+            channelId: '1496800171340857345', 
+            messageId: '1500012435921178795', 
+            emoji: '🐦', 
+            roleName: 'RISTEK' 
+        },
+        { 
+            channelId: '1496800171340857345', 
+            messageId: '1500012435921178795', 
+            emoji: '🔥', 
+            roleName: 'RISTEK' 
+        },
+        { 
+            channelId: '1496800171340857345', 
+            messageId: '1500013239109554318', 
+            emoji: '🫂', 
+            roleName: 'HUX' 
+        },
+        { 
+            channelId: '1496800171340857345', 
+            messageId: '1500013378213646467', 
+            emoji: '📸', 
+            roleName: 'MEDINFO' 
+        }
+    ],
+
     branding: {
         name: 'Spark-Core',
         color: 0x00D4FF,       // Cyan electric
