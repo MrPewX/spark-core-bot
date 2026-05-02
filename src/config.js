@@ -45,12 +45,6 @@ module.exports = {
         { 
             channelId: '1496800171340857345', 
             messageId: '1500012435921178795', 
-            emoji: '🐦', 
-            roleId: '1496799264402313287' // RISTEK
-        },
-        { 
-            channelId: '1496800171340857345', 
-            messageId: '1500012435921178795', 
             emoji: '🔥', 
             roleId: '1496799264402313287' // RISTEK
         },
