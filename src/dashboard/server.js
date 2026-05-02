@@ -174,9 +174,17 @@ module.exports = {
                 name: c.name
             }));
 
-            const reactionRoles = db.getReactionRoles();
+            const dbRoles = db.getReactionRoles();
+            const configRoles = config.permanentReactionRoles || [];
+            
+            // Gabungkan data agar yang dari config.js juga muncul di tabel
+            const allReactionRoles = [...dbRoles];
+            configRoles.forEach(cr => {
+                const exists = allReactionRoles.find(r => r.messageId === cr.messageId && r.emoji === cr.emoji);
+                if (!exists) allReactionRoles.push(cr);
+            });
 
-            res.render('reaction-roles', { roles, channels, reactionRoles });
+            res.render('reaction-roles', { roles, channels, reactionRoles: allReactionRoles });
         });
 
         // ─── REACTION ROLES API ───
