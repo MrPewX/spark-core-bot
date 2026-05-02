@@ -31,17 +31,35 @@
     </div>
 </div>
 
-<!-- Quick Actions -->
-<div class="card">
-    <div class="section-title">
-        <h2>⚡ Quick Actions</h2>
+<!-- Quick Actions & Sync -->
+<div class="dashboard-grid">
+    <div class="card">
+        <div class="section-title">
+            <h2>⚡ Quick Actions</h2>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <a href="/kas" class="btn btn-primary btn-block">💰 Manajemen Kas</a>
+            <a href="/reaction-roles" class="btn btn-secondary btn-block">🎭 Reaction Roles</a>
+            <a href="/member-roles" class="btn btn-secondary btn-block">👤 Member Roles</a>
+        </div>
     </div>
-    <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
-        <a href="/kas" class="btn btn-primary">💰 Manajemen Kas</a>
-        <a href="/say" class="btn btn-secondary">📢 Kirim Pesan</a>
-        <a href="/moderation" class="btn btn-secondary">🛡️ Moderasi</a>
-        <a href="/iot" class="btn btn-secondary">📡 IoT Tools</a>
-        <a href="/ml" class="btn btn-secondary">🧠 ML Tools</a>
+
+    <div class="card">
+        <div class="section-title">
+            <h2>🔄 Quick Sync Reaction Roles</h2>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+            Klik Sync setelah redeploy untuk mengaktifkan kembali bot pada pesan lama.
+        </p>
+        <div class="form-group">
+            <select id="syncChannelId" class="form-control" style="margin-bottom: 0.75rem;">
+                <option value="">-- Pilih Channel --</option>
+                <% channels.forEach(channel => { %>
+                    <option value="<%= channel.id %>">#<%= channel.name %></option>
+                <% }) %>
+            </select>
+            <button onclick="syncChannel()" class="btn btn-primary btn-block">🔄 Jalankan Sync</button>
+        </div>
     </div>
 </div>
 
@@ -68,6 +86,36 @@
         const seconds = uptime % 60;
         uptimeEl.textContent = `${hours}h ${minutes}m ${seconds}s`;
     }, 1000);
+    
+    async function syncChannel() {
+        const channelId = document.getElementById('syncChannelId').value;
+        if (!channelId) return alert('Pilih channel terlebih dahulu!');
+
+        const btn = document.querySelector('button[onclick="syncChannel()"]');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Syncing...';
+
+        try {
+            const res = await fetch('/api/reaction-roles/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ channelId })
+            });
+
+            const result = await res.json();
+            if (result.success) {
+                alert(`Berhasil sinkronisasi ${result.syncedCount} reaction role di channel tersebut!`);
+            } else {
+                alert('Gagal: ' + result.error);
+            }
+        } catch (err) {
+            alert('Kesalahan jaringan.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+    }
 </script>
 
 <%- include('partials/footer') %>

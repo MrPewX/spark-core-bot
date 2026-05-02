@@ -5,6 +5,15 @@
         <h1>Reaction Roles</h1>
         <p>Kelola pesan yang memberikan role otomatis saat bereaksi.</p>
     </div>
+    <div class="header-actions" style="display: flex; gap: 0.5rem; align-items: center;">
+        <select id="syncChannelId" class="form-control" style="width: 200px;">
+            <option value="">-- Pilih Channel --</option>
+            <% channels.forEach(channel => { %>
+                <option value="<%= channel.id %>">#<%= channel.name %></option>
+            <% }) %>
+        </select>
+        <button onclick="syncChannel()" class="btn btn-secondary">🔄 Sync Channel</button>
+    </div>
 </div>
 
 <div class="dashboard-grid">
@@ -206,6 +215,36 @@
             location.reload();
         } else {
             alert('Gagal: ' + result.error);
+        }
+    }
+
+    async function syncChannel() {
+        const channelId = document.getElementById('syncChannelId').value;
+        if (!channelId) return alert('Pilih channel terlebih dahulu!');
+
+        const btn = document.querySelector('button[onclick="syncChannel()"]');
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Syncing...';
+
+        try {
+            const res = await fetch('/api/reaction-roles/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ channelId })
+            });
+
+            const result = await res.json();
+            if (result.success) {
+                alert(`Berhasil sinkronisasi ${result.syncedCount} reaction role di channel tersebut!`);
+            } else {
+                alert('Gagal: ' + result.error);
+            }
+        } catch (err) {
+            alert('Kesalahan jaringan.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalText;
         }
     }
 </script>

@@ -24,12 +24,23 @@ module.exports = {
             const commands = Array.from(client.commands.values()).map(cmd => cmd.data.name);
             const allKas = db.getAllKas();
             const totalKas = allKas.reduce((acc, curr) => acc + curr.amount, 0);
+            
+            const guild = client.guilds.cache.first();
+            let channels = [];
+            if (guild) {
+                channels = Array.from(guild.channels.cache.filter(c => c.type === ChannelType.GuildText).values()).map(c => ({
+                    id: c.id,
+                    name: c.name
+                }));
+            }
+
             res.render('index', { 
                 botName: client.user ? client.user.tag : 'Spark-Core',
                 status: 'ACTIVE',
                 uptime,
                 commands,
-                totalKas
+                totalKas,
+                channels
             });
         });
 
@@ -214,6 +225,33 @@ module.exports = {
             try {
                 db.deleteReactionRole(messageId, emoji);
                 res.json({ success: true });
+            } catch (error) {
+                res.status(500).json({ success: false, error: error.message });
+            }
+        });
+
+        app.post('/api/reaction-roles/sync', async (req, res) => {
+            const { channelId } = req.body;
+            try {
+                const channel = client.channels.cache.get(channelId);
+                if (!channel) return res.status(404).json({ success: false, error: 'Channel not found' });
+
+                const reactionRoles = db.getReactionRoles().filter(r => r.channelId === channelId);
+                
+                let count = 0;
+                for (const rr of reactionRoles) {
+                    try {
+                        const msg = await channel.messages.fetch(rr.messageId);
+                        if (msg) {
+                            await msg.react(rr.emoji);
+                            count++;
+                        }
+                    } catch (e) {
+                        console.error(`Gagal sync pesan ${rr.messageId}: ${e.message}`);
+                    }
+                }
+
+                res.json({ success: true, syncedCount: count });
             } catch (error) {
                 res.status(500).json({ success: false, error: error.message });
             }
