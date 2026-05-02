@@ -170,16 +170,39 @@ module.exports = {
 
         // ─── REACTION ROLES API ───
         app.post('/api/reaction-roles', async (req, res) => {
-            const { messageId, channelId, emoji, roleId } = req.body;
+            const { messageId, channelId, emoji, roleId, messageContent, useEmbed } = req.body;
             try {
                 const channel = client.channels.cache.get(channelId);
                 if (!channel) return res.status(404).json({ success: false, error: 'Channel not found' });
                 
-                const message = await channel.messages.fetch(messageId);
+                let targetMessageId = messageId;
+
+                // Jika user ingin kirim pesan baru lewat bot
+                if (messageContent && !messageId) {
+                    let sentMessage;
+                    if (useEmbed === 'true' || useEmbed === true) {
+                        const { EmbedBuilder } = require('discord.js');
+                        const embed = new EmbedBuilder()
+                            .setColor(config.branding.color || '#dc2626')
+                            .setDescription(messageContent)
+                            .setFooter({ text: config.branding.footerText || 'Spark-Core' })
+                            .setTimestamp();
+                        sentMessage = await channel.send({ embeds: [embed] });
+                    } else {
+                        sentMessage = await channel.send(messageContent);
+                    }
+                    targetMessageId = sentMessage.id;
+                }
+
+                if (!targetMessageId) {
+                    return res.status(400).json({ success: false, error: 'Message ID atau Message Content wajib diisi' });
+                }
+
+                const message = await channel.messages.fetch(targetMessageId);
                 if (!message) return res.status(404).json({ success: false, error: 'Message not found' });
 
                 await message.react(emoji);
-                db.addReactionRole(messageId, channelId, emoji, roleId);
+                db.addReactionRole(targetMessageId, channelId, emoji, roleId);
                 res.json({ success: true });
             } catch (error) {
                 res.status(500).json({ success: false, error: error.message });
