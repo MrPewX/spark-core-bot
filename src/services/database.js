@@ -19,7 +19,12 @@ let db = {
 // Load data
 if (fs.existsSync(dbPath)) {
     try {
-        db = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+        const loadedData = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+        db = {
+            warnings: loadedData.warnings || {},
+            kas: loadedData.kas || [],
+            reactionRoles: loadedData.reactionRoles || []
+        };
     } catch (err) {
         console.error('❌ Gagal memuat database JSON:', err.message);
     }
