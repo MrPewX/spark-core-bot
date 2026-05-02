@@ -1,0 +1,125 @@
+<%- include('partials/header') %>
+
+<div class="page-header">
+    <div class="header-info">
+        <h1>Reaction Roles</h1>
+        <p>Kelola pesan yang memberikan role otomatis saat bereaksi.</p>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Form Tambah Reaction Role -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Buat Reaction Role Baru</h2>
+        </div>
+        <form id="rr-form" class="custom-form">
+            <div class="form-group">
+                <label for="channelId">Channel</label>
+                <select id="channelId" name="channelId" required>
+                    <% channels.forEach(channel => { %>
+                        <option value="<%= channel.id %>">#<%= channel.name %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="messageId">Message ID</label>
+                <input type="text" id="messageId" name="messageId" placeholder="Masukkan ID pesan..." required>
+            </div>
+            <div class="form-group">
+                <label for="emoji">Emoji (Unicode atau ID)</label>
+                <input type="text" id="emoji" name="emoji" placeholder="Contoh: ✅ atau 123456789" required>
+            </div>
+            <div class="form-group">
+                <label for="roleId">Role</label>
+                <select id="roleId" name="roleId" required>
+                    <% roles.forEach(role => { %>
+                        <option value="<%= role.id %>"><%= role.name %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Tambahkan</button>
+        </form>
+    </div>
+
+    <!-- Daftar Reaction Role -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Daftar Reaction Role</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Channel</th>
+                        <th>Msg ID</th>
+                        <th>Emoji</th>
+                        <th>Role</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (reactionRoles.length === 0) { %>
+                        <tr>
+                            <td colspan="5" style="text-align: center;">Belum ada reaction role.</td>
+                        </tr>
+                    <% } else { %>
+                        <% reactionRoles.forEach(rr => { %>
+                            <% const role = roles.find(r => r.id === rr.roleId); %>
+                            <% const channel = channels.find(c => c.id === rr.channelId); %>
+                            <tr>
+                                <td>#<%= channel ? channel.name : 'Unknown' %></td>
+                                <td><code><%= rr.messageId.substring(0, 8) %>...</code></td>
+                                <td><%= rr.emoji %></td>
+                                <td><%= role ? role.name : 'Unknown' %></td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteRR('<%= rr.messageId %>', '<%= rr.emoji %>')">Hapus</button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('rr-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+
+        const res = await fetch('/api/reaction-roles', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        if (result.success) {
+            location.reload();
+        } else {
+            alert('Gagal: ' + result.error);
+        }
+    });
+
+    async function deleteRR(messageId, emoji) {
+        if (!confirm('Hapus reaction role ini?')) return;
+
+        const res = await fetch('/api/reaction-roles', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messageId, emoji })
+        });
+
+        const result = await res.json();
+        if (result.success) {
+            location.reload();
+        } else {
+            alert('Gagal: ' + result.error);
+        }
+    }
+</script>
+
+<%- include('partials/footer') %>

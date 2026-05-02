@@ -13,6 +13,7 @@ const dbPath = path.join(dataDir, 'database.json');
 let db = {
     warnings: {}, // { userId: [{ reason: string, timestamp: number, moderatorId: string }] }
     kas: [],      // [{ userId: string, name: string, amount: number, month: number, year: number, timestamp: number }]
+    reactionRoles: [] // [{ messageId: string, channelId: string, emoji: string, roleId: string }]
 };
 
 // Load data
@@ -81,5 +82,18 @@ module.exports = {
     },
     getAllKas() {
         return db.kas;
+    },
+
+    // --- Reaction Roles ---
+    addReactionRole(messageId, channelId, emoji, roleId) {
+        db.reactionRoles.push({ messageId, channelId, emoji, roleId });
+        save();
+    },
+    getReactionRoles() {
+        return db.reactionRoles || [];
+    },
+    deleteReactionRole(messageId, emoji) {
+        db.reactionRoles = db.reactionRoles.filter(r => !(r.messageId === messageId && r.emoji === emoji));
+        save();
     }
 };

@@ -1,0 +1,389 @@
+<%- include('partials/header') %>
+
+<div class="header">
+    <div>
+        <h1>🔧 Server Manager</h1>
+        <p class="header-subtitle">Kelola channel, kategori, roles & permission server Discord</p>
+    </div>
+    <span class="badge badge-primary"><%= guildName %></span>
+</div>
+
+<!-- Stats -->
+<div class="dashboard-grid">
+    <div class="card stat-card">
+        <div class="stat-icon stat-icon-blue">💬</div>
+        <h3>Total Channels</h3>
+        <div class="value"><%= channels.length %></div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-icon stat-icon-orange">📁</div>
+        <h3>Kategori</h3>
+        <div class="value"><%= categories.length %></div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-icon stat-icon-red">🎭</div>
+        <h3>Roles</h3>
+        <div class="value"><%= roles.length %></div>
+    </div>
+</div>
+
+<!-- Tab Navigation -->
+<div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+    <button class="btn btn-primary tab-btn active" onclick="switchTab('channels')">💬 Channels</button>
+    <button class="btn btn-secondary tab-btn" onclick="switchTab('categories')">📁 Kategori</button>
+    <button class="btn btn-secondary tab-btn" onclick="switchTab('roles')">🎭 Roles & Permission</button>
+</div>
+
+<!-- ═══ TAB: CHANNELS ═══ -->
+<div id="tab-channels" class="tab-content">
+    <div class="card">
+        <div class="section-title">
+            <h2>💬 Daftar Channel</h2>
+            <button class="btn btn-primary btn-sm" onclick="document.getElementById('createChannelModal').classList.add('show')">＋ Buat Channel</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Nama</th><th>Tipe</th><th>Kategori</th><th>Aksi</th></tr></thead>
+                <tbody>
+                <% if (channels.length > 0) { %>
+                    <% channels.forEach(ch => { %>
+                    <tr>
+                        <td style="font-weight:600;">#<%= ch.name %></td>
+                        <td><span class="badge badge-info"><%= ch.typeName %></span></td>
+                        <td style="color:var(--text-secondary);"><%= ch.category || '-' %></td>
+                        <td style="display:flex;gap:0.4rem;">
+                            <button class="btn-delete-row" onclick="editChannel('<%= ch.id %>','<%= ch.name %>')">✏️</button>
+                            <button class="btn-delete-row" onclick="deleteChannel('<%= ch.id %>','<%= ch.name %>')">🗑️</button>
+                        </td>
+                    </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr><td colspan="4"><div class="empty-state"><div class="empty-icon">💬</div><p>Tidak ada channel.</p></div></td></tr>
+                <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ TAB: CATEGORIES ═══ -->
+<div id="tab-categories" class="tab-content" style="display:none;">
+    <div class="card">
+        <div class="section-title">
+            <h2>📁 Daftar Kategori</h2>
+            <button class="btn btn-primary btn-sm" onclick="document.getElementById('createCategoryModal').classList.add('show')">＋ Buat Kategori</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Nama Kategori</th><th>Jumlah Channel</th><th>Aksi</th></tr></thead>
+                <tbody>
+                <% if (categories.length > 0) { %>
+                    <% categories.forEach(cat => { %>
+                    <tr>
+                        <td style="font-weight:600;">📁 <%= cat.name %></td>
+                        <td><span class="badge badge-primary"><%= cat.childCount %> channel</span></td>
+                        <td style="display:flex;gap:0.4rem;">
+                            <button class="btn-delete-row" onclick="deleteCategory('<%= cat.id %>','<%= cat.name %>')">🗑️</button>
+                        </td>
+                    </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr><td colspan="3"><div class="empty-state"><div class="empty-icon">📁</div><p>Tidak ada kategori.</p></div></td></tr>
+                <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ TAB: ROLES ═══ -->
+<div id="tab-roles" class="tab-content" style="display:none;">
+    <div class="card">
+        <div class="section-title">
+            <h2>🎭 Daftar Roles</h2>
+            <button class="btn btn-primary btn-sm" onclick="document.getElementById('createRoleModal').classList.add('show')">＋ Buat Role</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Role</th><th>Warna</th><th>Members</th><th>Permissions</th><th>Aksi</th></tr></thead>
+                <tbody>
+                <% if (roles.length > 0) { %>
+                    <% roles.forEach(r => { %>
+                    <tr>
+                        <td style="font-weight:600;color:<%= r.hexColor !== '#000000' ? r.hexColor : 'var(--text-primary)' %>;"><%= r.name %></td>
+                        <td><span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:<%= r.hexColor %>;border:1px solid rgba(255,255,255,0.1);"></span> <%= r.hexColor %></td>
+                        <td><%= r.memberCount %></td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm" onclick="showPermissions('<%= r.id %>')">🔑 Lihat</button>
+                        </td>
+                        <td style="display:flex;gap:0.4rem;">
+                            <button class="btn-delete-row" onclick="editRolePerms('<%= r.id %>','<%= r.name %>')">⚙️</button>
+                            <% if (!r.managed && r.name !== '@everyone') { %>
+                            <button class="btn-delete-row" onclick="deleteRole('<%= r.id %>','<%= r.name %>')">🗑️</button>
+                            <% } %>
+                        </td>
+                    </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🎭</div><p>Tidak ada roles.</p></div></td></tr>
+                <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Create Channel -->
+<div class="modal-overlay" id="createChannelModal">
+    <div class="modal">
+        <h2>＋ Buat Channel Baru</h2>
+        <form onsubmit="createChannel(event)">
+            <div class="form-group">
+                <label>Nama Channel</label>
+                <input type="text" id="newChName" class="form-control" placeholder="general-chat" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tipe</label>
+                    <select id="newChType" class="form-control">
+                        <option value="text">Text Channel</option>
+                        <option value="voice">Voice Channel</option>
+                        <option value="announcement">Announcement</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Kategori (Opsional)</label>
+                    <select id="newChCategory" class="form-control">
+                        <option value="">Tanpa Kategori</option>
+                        <% categories.forEach(cat => { %>
+                        <option value="<%= cat.id %>"><%= cat.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').classList.remove('show')">Batal</button>
+                <button type="submit" class="btn btn-primary">💬 Buat Channel</button>
+            </div>
+        </form>
+        <div id="chStatus" style="display:none" class="status-message"></div>
+    </div>
+</div>
+
+<!-- Create Category -->
+<div class="modal-overlay" id="createCategoryModal">
+    <div class="modal">
+        <h2>＋ Buat Kategori Baru</h2>
+        <form onsubmit="createCategory(event)">
+            <div class="form-group">
+                <label>Nama Kategori</label>
+                <input type="text" id="newCatName" class="form-control" placeholder="GENERAL" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').classList.remove('show')">Batal</button>
+                <button type="submit" class="btn btn-primary">📁 Buat Kategori</button>
+            </div>
+        </form>
+        <div id="catStatus" style="display:none" class="status-message"></div>
+    </div>
+</div>
+
+<!-- Create Role -->
+<div class="modal-overlay" id="createRoleModal">
+    <div class="modal">
+        <h2>＋ Buat Role Baru</h2>
+        <form onsubmit="createRole(event)">
+            <div class="form-group">
+                <label>Nama Role</label>
+                <input type="text" id="newRoleName" class="form-control" placeholder="Member" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Warna</label>
+                    <input type="color" id="newRoleColor" class="form-control" value="#dc2626" style="height:42px;padding:4px;">
+                </div>
+                <div class="form-group">
+                    <label>Hoist (Tampil terpisah)</label>
+                    <select id="newRoleHoist" class="form-control">
+                        <option value="false">Tidak</option>
+                        <option value="true">Ya</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').classList.remove('show')">Batal</button>
+                <button type="submit" class="btn btn-primary">🎭 Buat Role</button>
+            </div>
+        </form>
+        <div id="roleStatus" style="display:none" class="status-message"></div>
+    </div>
+</div>
+
+<!-- Edit Role Permissions -->
+<div class="modal-overlay" id="editPermModal">
+    <div class="modal" style="max-width:600px;max-height:80vh;overflow-y:auto;">
+        <h2>⚙️ Edit Permission: <span id="editPermRoleName"></span></h2>
+        <div id="permList" style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;"></div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').classList.remove('show')">Batal</button>
+            <button type="button" class="btn btn-primary" onclick="savePermissions()">💾 Simpan Permissions</button>
+        </div>
+        <div id="permStatus" style="display:none" class="status-message"></div>
+    </div>
+</div>
+
+<!-- View Permissions -->
+<div class="modal-overlay" id="viewPermModal">
+    <div class="modal" style="max-width:600px;max-height:80vh;overflow-y:auto;">
+        <h2>🔑 Permissions</h2>
+        <div id="viewPermList" style="display:grid;grid-template-columns:1fr 1fr;gap:0.3rem;font-size:0.85rem;"></div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').classList.remove('show')">Tutup</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const allRolesData = <%- JSON.stringify(rolesWithPerms) %>;
+let editingRoleId = null;
+
+const PERM_LABELS = {
+    Administrator:'Administrator',ManageGuild:'Manage Server',ManageChannels:'Manage Channels',
+    ManageRoles:'Manage Roles',ManageMessages:'Manage Messages',ManageWebhooks:'Manage Webhooks',
+    ManageEmojisAndStickers:'Manage Emojis',ManageEvents:'Manage Events',ManageThreads:'Manage Threads',
+    KickMembers:'Kick Members',BanMembers:'Ban Members',ModerateMembers:'Timeout Members',
+    SendMessages:'Send Messages',SendMessagesInThreads:'Send in Threads',EmbedLinks:'Embed Links',
+    AttachFiles:'Attach Files',AddReactions:'Add Reactions',UseExternalEmojis:'Use External Emojis',
+    MentionEveryone:'Mention Everyone',ReadMessageHistory:'Read History',ViewChannel:'View Channels',
+    Connect:'Connect (Voice)',Speak:'Speak (Voice)',MuteMembers:'Mute Members',DeafenMembers:'Deafen Members',
+    MoveMembers:'Move Members',UseVAD:'Use VAD',CreateInstantInvite:'Create Invite',ChangeNickname:'Change Nickname',
+    ManageNicknames:'Manage Nicknames'
+};
+
+// Tab switching
+function switchTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.className = b.className.replace('btn-primary','btn-secondary'); });
+    document.getElementById('tab-' + tab).style.display = 'block';
+    event.target.classList.add('active');
+    event.target.className = event.target.className.replace('btn-secondary','btn-primary');
+}
+
+// API helper
+async function apiCall(url, method, body) {
+    const res = await fetch(url, { method, headers:{'Content-Type':'application/json'}, body: body ? JSON.stringify(body) : undefined });
+    return res.json();
+}
+
+function showStatus(elId, success, msg) {
+    const el = document.getElementById(elId);
+    el.className = 'status-message ' + (success ? 'status-success' : 'status-error');
+    el.textContent = (success ? '✅ ' : '❌ ') + msg;
+    el.style.display = 'block';
+    if (success) setTimeout(() => location.reload(), 1000);
+}
+
+// ─── Channel ───
+async function createChannel(e) {
+    e.preventDefault();
+    const data = await apiCall('/api/server/channel', 'POST', {
+        name: document.getElementById('newChName').value,
+        type: document.getElementById('newChType').value,
+        categoryId: document.getElementById('newChCategory').value
+    });
+    showStatus('chStatus', data.success, data.success ? 'Channel berhasil dibuat!' : data.error);
+}
+
+function editChannel(id, name) {
+    const newName = prompt('Nama baru untuk #' + name + ':', name);
+    if (!newName || newName === name) return;
+    apiCall('/api/server/channel', 'PATCH', { id, name: newName }).then(data => {
+        if (data.success) location.reload();
+        else alert('Gagal: ' + data.error);
+    });
+}
+
+function deleteChannel(id, name) {
+    if (!confirm('Hapus channel #' + name + '? Aksi ini tidak bisa dibatalkan!')) return;
+    apiCall('/api/server/channel', 'DELETE', { id }).then(data => {
+        if (data.success) location.reload();
+        else alert('Gagal: ' + data.error);
+    });
+}
+
+// ─── Category ───
+async function createCategory(e) {
+    e.preventDefault();
+    const data = await apiCall('/api/server/category', 'POST', { name: document.getElementById('newCatName').value });
+    showStatus('catStatus', data.success, data.success ? 'Kategori berhasil dibuat!' : data.error);
+}
+
+function deleteCategory(id, name) {
+    if (!confirm('Hapus kategori "' + name + '"? Channel di dalamnya akan menjadi tanpa kategori.')) return;
+    apiCall('/api/server/category', 'DELETE', { id }).then(data => {
+        if (data.success) location.reload();
+        else alert('Gagal: ' + data.error);
+    });
+}
+
+// ─── Roles ───
+async function createRole(e) {
+    e.preventDefault();
+    const data = await apiCall('/api/server/role', 'POST', {
+        name: document.getElementById('newRoleName').value,
+        color: document.getElementById('newRoleColor').value,
+        hoist: document.getElementById('newRoleHoist').value === 'true'
+    });
+    showStatus('roleStatus', data.success, data.success ? 'Role berhasil dibuat!' : data.error);
+}
+
+function deleteRole(id, name) {
+    if (!confirm('Hapus role "' + name + '"?')) return;
+    apiCall('/api/server/role', 'DELETE', { id }).then(data => {
+        if (data.success) location.reload();
+        else alert('Gagal: ' + data.error);
+    });
+}
+
+// ─── Permissions ───
+function showPermissions(roleId) {
+    const role = allRolesData.find(r => r.id === roleId);
+    if (!role) return;
+    const container = document.getElementById('viewPermList');
+    container.innerHTML = '';
+    Object.keys(PERM_LABELS).forEach(perm => {
+        const has = role.permissions.includes(perm);
+        container.innerHTML += `<div style="padding:0.3rem 0.5rem;border-radius:6px;background:${has?'var(--success-bg)':'rgba(255,255,255,0.02)'};color:${has?'var(--success)':'var(--text-muted)'}">${has?'✅':'❌'} ${PERM_LABELS[perm]}</div>`;
+    });
+    document.getElementById('viewPermModal').classList.add('show');
+}
+
+function editRolePerms(roleId, roleName) {
+    editingRoleId = roleId;
+    document.getElementById('editPermRoleName').textContent = roleName;
+    const role = allRolesData.find(r => r.id === roleId);
+    if (!role) return;
+    const container = document.getElementById('permList');
+    container.innerHTML = '';
+    Object.keys(PERM_LABELS).forEach(perm => {
+        const has = role.permissions.includes(perm);
+        container.innerHTML += `<label style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.5rem;border-radius:6px;background:rgba(255,255,255,0.02);cursor:pointer;font-size:0.85rem;">
+            <input type="checkbox" value="${perm}" ${has?'checked':''} style="accent-color:var(--accent);width:1rem;height:1rem;">
+            ${PERM_LABELS[perm]}
+        </label>`;
+    });
+    document.getElementById('editPermModal').classList.add('show');
+}
+
+async function savePermissions() {
+    const checks = document.querySelectorAll('#permList input[type=checkbox]');
+    const perms = [];
+    checks.forEach(c => { if(c.checked) perms.push(c.value); });
+    const data = await apiCall('/api/server/role/permissions', 'PATCH', { roleId: editingRoleId, permissions: perms });
+    showStatus('permStatus', data.success, data.success ? 'Permission berhasil diupdate!' : data.error);
+}
+</script>
+
+<%- include('partials/footer') %>

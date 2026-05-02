@@ -1,0 +1,93 @@
+<%- include('partials/header') %>
+
+<div class="page-header">
+    <div class="header-info">
+        <h1>Manajemen Role Member</h1>
+        <p>Atur role untuk setiap member di server Anda.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Daftar Member</h2>
+        <div class="header-actions">
+            <input type="text" id="memberSearch" placeholder="Cari member..." class="search-input">
+        </div>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Member</th>
+                    <th>ID</th>
+                    <th>Role Saat Ini</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="memberTableBody">
+                <% members.forEach(member => { %>
+                    <tr class="member-row">
+                        <td><strong><%= member.tag %></strong></td>
+                        <td><code><%= member.id %></code></td>
+                        <td>
+                            <div class="role-pills">
+                                <% member.roles.forEach(roleId => { %>
+                                    <% const role = roles.find(r => r.id === roleId); %>
+                                    <% if (role && role.name !== '@everyone') { %>
+                                        <span class="role-pill" style="border-left: 3px solid <%= role.hexColor %>">
+                                            <%= role.name %>
+                                            <button onclick="updateRole('<%= member.id %>', '<%= role.id %>', 'remove')" class="pill-remove">×</button>
+                                        </span>
+                                    <% } %>
+                                <% }) %>
+                            </div>
+                        </td>
+                        <td>
+                            <select onchange="if(this.value) updateRole('<%= member.id %>', this.value, 'add'); this.value='';" class="role-select">
+                                <option value="">+ Tambah Role</option>
+                                <% roles.forEach(role => { %>
+                                    <% if (role.name !== '@everyone' && !member.roles.includes(role.id)) { %>
+                                        <option value="<%= role.id %>"><%= role.name %></option>
+                                    <% } %>
+                                <% }) %>
+                            </select>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.getElementById('memberSearch').addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.member-row');
+        rows.forEach(row => {
+            const tag = row.cells[0].textContent.toLowerCase();
+            const id = row.cells[1].textContent.toLowerCase();
+            if (tag.includes(query) || id.includes(query)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    async function updateRole(userId, roleId, action) {
+        const res = await fetch('/api/member-roles', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, roleId, action })
+        });
+
+        const result = await res.json();
+        if (result.success) {
+            location.reload();
+        } else {
+            alert('Gagal memperbarui role: ' + result.error);
+        }
+    }
+</script>
+
+<%- include('partials/footer') %>

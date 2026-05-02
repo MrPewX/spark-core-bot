@@ -688,3 +688,102 @@ tr:hover { background-color: rgba(220, 38, 38, 0.03); }
         grid-template-columns: 1fr;
     }
 }
+/* ─── Role Pills & Selects (Member Roles Page) ─── */
+.role-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.role-pill {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: var(--transition);
+}
+
+.role-pill:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.pill-remove {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0;
+    opacity: 0.7;
+    transition: var(--transition);
+}
+
+.pill-remove:hover {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.role-select {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--surface-border);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.role-select:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+.search-input {
+    background: var(--bg-secondary);
+    border: 1px solid var(--surface-border);
+    color: var(--text-primary);
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    width: 100%;
+    max-width: 300px;
+}
+
+.search-input:focus {
+    border-color: var(--accent);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* ─── Custom Form (Reaction Roles Page) ─── */
+.custom-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.custom-form select,
+.custom-form input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: inherit;
+}
+
+.custom-form select:focus,
+.custom-form input:focus {
+    border-color: var(--accent);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
