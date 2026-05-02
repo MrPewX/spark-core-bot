@@ -117,9 +117,10 @@
                             <button class="btn btn-secondary btn-sm" onclick="showPermissions('<%= r.id %>')">🔑 Lihat</button>
                         </td>
                         <td style="display:flex;gap:0.4rem;">
-                            <button class="btn-delete-row" onclick="editRolePerms('<%= r.id %>','<%= r.name %>')">⚙️</button>
+                            <button class="btn-delete-row" title="Edit Metadata" onclick="openEditRoleModal('<%= r.id %>','<%= r.name %>','<%= r.hexColor %>','<%= r.hoist %>')">✏️</button>
+                            <button class="btn-delete-row" title="Edit Permission" onclick="editRolePerms('<%= r.id %>','<%= r.name %>')">⚙️</button>
                             <% if (!r.managed && r.name !== '@everyone') { %>
-                            <button class="btn-delete-row" onclick="deleteRole('<%= r.id %>','<%= r.name %>')">🗑️</button>
+                            <button class="btn-delete-row" title="Hapus Role" onclick="deleteRole('<%= r.id %>','<%= r.name %>')">🗑️</button>
                             <% } %>
                         </td>
                     </tr>
@@ -221,6 +222,38 @@
     </div>
 </div>
 
+<!-- Edit Role Metadata -->
+<div class="modal-overlay" id="editRoleModal">
+    <div class="modal">
+        <h2>✏️ Edit Role: <span id="editRoleTitle"></span></h2>
+        <form onsubmit="saveRoleMetadata(event)">
+            <input type="hidden" id="editRoleId">
+            <div class="form-group">
+                <label>Nama Role</label>
+                <input type="text" id="editRoleName" class="form-control" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Warna</label>
+                    <input type="color" id="editRoleColor" class="form-control" style="height:42px;padding:4px;">
+                </div>
+                <div class="form-group">
+                    <label>Hoist (Tampil terpisah)</label>
+                    <select id="editRoleHoist" class="form-control">
+                        <option value="false">Tidak</option>
+                        <option value="true">Ya</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').classList.remove('show')">Batal</button>
+                <button type="submit" class="btn btn-primary">💾 Simpan Perubahan</button>
+            </div>
+        </form>
+        <div id="editRoleStatus" style="display:none" class="status-message"></div>
+    </div>
+</div>
+
 <!-- Edit Role Permissions -->
 <div class="modal-overlay" id="editPermModal">
     <div class="modal" style="max-width:600px;max-height:80vh;overflow-y:auto;">
@@ -265,11 +298,32 @@ const PERM_LABELS = {
 // Tab switching
 function switchTab(tab) {
     document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.className = b.className.replace('btn-primary','btn-secondary'); });
-    document.getElementById('tab-' + tab).style.display = 'block';
-    event.target.classList.add('active');
-    event.target.className = event.target.className.replace('btn-secondary','btn-primary');
+    document.querySelectorAll('.tab-btn').forEach(b => { 
+        b.classList.remove('active'); 
+        b.className = b.className.replace('btn-primary','btn-secondary'); 
+    });
+    
+    const targetTab = document.getElementById('tab-' + tab);
+    if (targetTab) {
+        targetTab.style.display = 'block';
+        // Find the button that calls this tab and make it active
+        const btns = document.querySelectorAll('.tab-btn');
+        btns.forEach(btn => {
+            if (btn.getAttribute('onclick').includes(`'${tab}'`)) {
+                btn.classList.add('active');
+                btn.className = btn.className.replace('btn-secondary', 'btn-primary');
+            }
+        });
+    }
 }
+
+window.onload = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab) {
+        switchTab(tab);
+    }
+};
 
 // API helper
 async function apiCall(url, method, body) {
@@ -337,6 +391,26 @@ async function createRole(e) {
         hoist: document.getElementById('newRoleHoist').value === 'true'
     });
     showStatus('roleStatus', data.success, data.success ? 'Role berhasil dibuat!' : data.error);
+}
+
+function openEditRoleModal(id, name, color, hoist) {
+    document.getElementById('editRoleId').value = id;
+    document.getElementById('editRoleName').value = name;
+    document.getElementById('editRoleColor').value = color === '#000000' ? '#ffffff' : color;
+    document.getElementById('editRoleHoist').value = hoist;
+    document.getElementById('editRoleTitle').textContent = name;
+    document.getElementById('editRoleModal').classList.add('show');
+}
+
+async function saveRoleMetadata(e) {
+    e.preventDefault();
+    const data = await apiCall('/api/server/role', 'PATCH', {
+        id: document.getElementById('editRoleId').value,
+        name: document.getElementById('editRoleName').value,
+        color: document.getElementById('editRoleColor').value,
+        hoist: document.getElementById('editRoleHoist').value === 'true'
+    });
+    showStatus('editRoleStatus', data.success, data.success ? 'Role berhasil diupdate!' : data.error);
 }
 
 function deleteRole(id, name) {

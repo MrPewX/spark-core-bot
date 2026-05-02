@@ -394,6 +394,22 @@ module.exports = {
             }
         });
 
+        app.patch('/api/server/role', async (req, res) => {
+            const { id, name, color, hoist } = req.body;
+            try {
+                const guild = client.guilds.cache.first();
+                const role = await guild.roles.fetch(id);
+                await role.edit({
+                    name: name || role.name,
+                    color: color || role.color,
+                    hoist: hoist !== undefined ? hoist : role.hoist
+                });
+                res.json({ success: true });
+            } catch (error) {
+                res.status(500).json({ success: false, error: error.message });
+            }
+        });
+
         app.patch('/api/server/role/permissions', async (req, res) => {
             const { roleId, permissions } = req.body;
             try {
