@@ -112,12 +112,12 @@
                                 <td><%= rr.emoji %></td>
                                 <td>
                                     <%= role ? role.name : (rr.roleName || 'Unknown') %>
-                                    <% if (rr.roleName) { %>
+                                    <% if (rr.isPermanent) { %>
                                         <span class="badge badge-info">Permanent</span>
                                     <% } %>
                                 </td>
                                 <td>
-                                    <% if (!rr.roleName) { %>
+                                    <% if (!rr.isPermanent) { %>
                                         <button class="btn btn-danger btn-sm" onclick="deleteRR('<%= rr.messageId %>', '<%= rr.emoji %>')">Hapus</button>
                                     <% } else { %>
                                         <small style="color: var(--text-muted);">Config Locked</small>

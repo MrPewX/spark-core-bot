@@ -177,11 +177,16 @@ module.exports = {
             const dbRoles = db.getReactionRoles();
             const configRoles = config.permanentReactionRoles || [];
             
-            // Gabungkan data agar yang dari config.js juga muncul di tabel
-            const allReactionRoles = [...dbRoles];
+            // Gabungkan data dan tandai mana yang permanen
+            const allReactionRoles = [...dbRoles].map(r => ({ ...r, isPermanent: false }));
+            
             configRoles.forEach(cr => {
                 const exists = allReactionRoles.find(r => r.messageId === cr.messageId && r.emoji === cr.emoji);
-                if (!exists) allReactionRoles.push(cr);
+                if (exists) {
+                    exists.isPermanent = true;
+                } else {
+                    allReactionRoles.push({ ...cr, isPermanent: true });
+                }
             });
 
             res.render('reaction-roles', { roles, channels, reactionRoles: allReactionRoles });
