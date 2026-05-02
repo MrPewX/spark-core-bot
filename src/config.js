@@ -46,25 +46,25 @@ module.exports = {
             channelId: '1496800171340857345', 
             messageId: '1500012435921178795', 
             emoji: '🐦', 
-            roleName: 'RISTEK' 
+            roleId: '1496799264402313287' // RISTEK
         },
         { 
             channelId: '1496800171340857345', 
             messageId: '1500012435921178795', 
             emoji: '🔥', 
-            roleName: 'RISTEK' 
+            roleId: '1496799264402313287' // RISTEK
         },
         { 
             channelId: '1496800171340857345', 
             messageId: '1500013239109554318', 
             emoji: '🫂', 
-            roleName: 'HUX' 
+            roleId: '1496799061150404688' // HUX
         },
         { 
             channelId: '1496800171340857345', 
             messageId: '1500013378213646467', 
             emoji: '📸', 
-            roleName: 'MEDINFO' 
+            roleId: '1496798933551415326' // MEDINFO
         }
     ],
 

@@ -32,50 +32,53 @@ module.exports = {
             
             for (const rr of config.permanentReactionRoles) {
                 try {
-                    const channel = await client.channels.fetch(rr.channelId).catch(() => null);
+                    // Coba cari channel berdasarkan ID
+                    let channel = await client.channels.fetch(rr.channelId).catch(() => null);
+                    
+                    // Jika gagal, coba cari berdasarkan nama (fallback)
                     if (!channel) {
-                        console.log(`❌ Channel tidak ditemukan: ${rr.channelId}`);
+                        channel = client.channels.cache.find(c => c.name === 'take-role' || c.name === 'project-showcase' || c.id === rr.channelId);
+                    }
+
+                    if (!channel) {
+                        console.log(`❌ Channel tidak ditemukan (ID: ${rr.channelId})`);
                         continue;
                     }
 
                     const guild = channel.guild;
                     let targetRoleId = rr.roleId;
 
-                    // Jika roleId tidak ada, cari berdasarkan roleName
+                    // Cari Role berdasarkan Nama jika ID Role tidak ada
                     if (!targetRoleId && rr.roleName) {
                         const role = guild.roles.cache.find(r => r.name.toLowerCase() === rr.roleName.toLowerCase());
                         if (role) {
                             targetRoleId = role.id;
                         } else {
-                            console.log(`⚠️ Role dengan nama "${rr.roleName}" tidak ditemukan di server.`);
+                            console.log(`⚠️ Role "${rr.roleName}" tidak ada di server.`);
                             continue;
                         }
                     }
 
-                    if (!targetRoleId) {
-                        console.log(`⚠️ Skip RR: ID Role atau Nama Role untuk ${rr.messageId} tidak valid.`);
-                        continue;
-                    }
-
+                    // Ambil pesan
                     const msg = await channel.messages.fetch(rr.messageId).catch(() => null);
                     if (!msg) {
-                        console.log(`❌ Pesan tidak ditemukan: ${rr.messageId} di channel #${channel.name}`);
+                        console.log(`❌ Pesan ${rr.messageId} tidak ada di #${channel.name}`);
                         continue;
                     }
 
-                    // Tambahkan ke database jika hilang (karena redeploy)
+                    // Simpan ke database sementara (in-memory)
                     const existing = db.getReactionRoles();
                     const isSaved = existing.find(x => x.messageId === rr.messageId && x.emoji === rr.emoji);
                     if (!isSaved) {
-                        db.addReactionRole(rr.messageId, rr.channelId, rr.emoji, targetRoleId);
+                        db.addReactionRole(rr.messageId, channel.id, rr.emoji, targetRoleId);
                     }
 
-                    // Pastikan bot bereaksi
+                    // Pasang reaksi
                     await msg.react(rr.emoji).catch(() => null);
-                    console.log(`✅ Synced: ${rr.emoji} -> Role ${rr.roleName || targetRoleId}`);
+                    console.log(`✅ Synced: ${rr.emoji} di #${channel.name}`);
 
                 } catch (e) {
-                    console.log(`❌ Error pada Auto-Sync: ${e.message}`);
+                    console.log(`❌ Error RR: ${e.message}`);
                 }
             }
             console.log('🏁 Auto-Sync Selesai!');
