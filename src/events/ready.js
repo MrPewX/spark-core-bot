@@ -17,13 +17,15 @@ module.exports = {
         console.log('');
         console.log('🚀 Interaction handler siap menerima perintah!');
 
-        // Git Version Info
+        // Version Info dari file version.json (dibuat otomatis saat commit)
         try {
-            const { execSync } = require('child_process');
-            const gitLog = execSync('git log -1 --oneline').toString().trim();
-            console.log(`✅ Versi Bot Saat Ini: [${gitLog}]`);
+            const versionInfo = require('../../version.json');
+            console.log(`✅ Versi Bot   : ${versionInfo.version}`);
+            console.log(`📝 Commit      : ${versionInfo.commit}`);
+            console.log(`💬 Pesan       : ${versionInfo.message}`);
+            console.log(`📅 Tanggal     : ${versionInfo.date}`);
         } catch(e) {
-            console.log(`ℹ️ Info Git tidak tersedia.`);
+            console.log(`ℹ️ File version.json tidak ditemukan.`);
         }
 
         // Set bot status
