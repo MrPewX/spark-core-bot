@@ -17,6 +17,15 @@ module.exports = {
         console.log('');
         console.log('🚀 Interaction handler siap menerima perintah!');
 
+        // Git Version Info
+        try {
+            const { execSync } = require('child_process');
+            const gitLog = execSync('git log -1 --oneline').toString().trim();
+            console.log(`✅ Versi Bot Saat Ini: [${gitLog}]`);
+        } catch(e) {
+            console.log(`ℹ️ Info Git tidak tersedia.`);
+        }
+
         // Set bot status
         client.user.setPresence({
             activities: [{

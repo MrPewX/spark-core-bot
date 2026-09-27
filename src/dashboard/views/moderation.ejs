@@ -1,90 +1,505 @@
 <%- include('partials/header') %>
 
-<div class="header">
-    <div>
-        <h1>🛡️ Panel Moderasi</h1>
-        <p class="header-subtitle">Kelola member dan keamanan server</p>
-    </div>
-</div>
+<style>
+/* Members & Moderation Layout */
+.members-container {
+    display: flex;
+    gap: 20px;
+    height: calc(100vh - 120px);
+    overflow: hidden;
+}
 
-<div class="dashboard-grid">
-    <div class="card stat-card">
-        <div class="stat-icon stat-icon-orange">⚠️</div>
-        <h3>Total Warnings</h3>
-        <div class="value"><%= totalWarnings %></div>
-    </div>
-    <div class="card stat-card">
-        <div class="stat-icon stat-icon-red">👥</div>
-        <h3>Users Warned</h3>
-        <div class="value"><%= warnedUsers %></div>
-    </div>
-</div>
+.members-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
 
-<!-- Moderation Actions -->
-<div class="card">
-    <div class="section-title">
-        <h2>⚡ Aksi Moderasi</h2>
-    </div>
-    <div class="command-grid">
-        <div class="command-card">
-            <div class="cmd-name">🗑️ /spark clear</div>
-            <div class="cmd-desc">Hapus pesan dalam jumlah banyak (1-100) di channel tertentu</div>
-        </div>
-        <div class="command-card">
-            <div class="cmd-name">⚠️ /spark warn</div>
-            <div class="cmd-desc">Berikan peringatan kepada member yang melanggar aturan</div>
-        </div>
-        <div class="command-card">
-            <div class="cmd-name">👢 /spark kick</div>
-            <div class="cmd-desc">Keluarkan member dari server Discord</div>
-        </div>
-        <div class="command-card">
-            <div class="cmd-name">🔨 /spark ban</div>
-            <div class="cmd-desc">Blokir member secara permanen dari server</div>
-        </div>
-        <div class="command-card">
-            <div class="cmd-name">🔇 /spark timeout</div>
-            <div class="cmd-desc">Bisukan member untuk durasi tertentu (dalam menit)</div>
-        </div>
-    </div>
-</div>
+.members-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-<!-- Warning History -->
-<div class="card" style="margin-top: 1.5rem;">
-    <div class="section-title">
-        <h2>📋 Riwayat Warning</h2>
-    </div>
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>User ID</th>
-                    <th>Jumlah Warning</th>
-                    <th>Warning Terakhir</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if (warningList.length > 0) { %>
-                    <% warningList.forEach(w => { %>
-                        <tr>
-                            <td style="font-weight: 600;"><%= w.userId %></td>
-                            <td><span class="badge badge-warning"><%= w.count %> warning</span></td>
-                            <td style="color: var(--text-secondary);"><%= w.lastReason %></td>
+.members-tabs {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.members-tabs .tab {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.members-tabs .tab:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.members-tabs .tab.active {
+    background: var(--bg-color);
+    color: var(--text-primary);
+}
+
+.members-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.members-search input {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 8px 15px;
+    border-radius: 6px;
+    width: 300px;
+    outline: none;
+}
+
+.members-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.member-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.member-table th {
+    text-align: left;
+    padding: 12px 20px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    background: var(--card-bg);
+    z-index: 10;
+}
+
+.member-row {
+    border-bottom: 1px solid var(--border-color);
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.member-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.member-row.selected {
+    background: rgba(139, 92, 246, 0.1);
+}
+
+.member-row td {
+    padding: 12px 20px;
+    vertical-align: middle;
+}
+
+.member-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-color);
+    object-fit: cover;
+}
+
+.member-name {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.member-tag {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin: 2px;
+}
+
+.role-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.mod-sidebar {
+    width: 350px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.mod-sidebar.active {
+    display: flex;
+}
+
+.mod-sidebar-header {
+    padding: 20px;
+    background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+}
+
+.mod-sidebar-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.mod-actions {
+    display: flex;
+    justify-content: space-around;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mod-btn {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.mod-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+.mod-btn.danger:hover {
+    background: #ef4444;
+}
+
+.mod-section {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mod-section h3 {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.mod-roles-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+select.role-select {
+    width: 100%;
+    padding: 8px;
+    background: var(--bg-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+</style>
+
+<div class="members-container">
+    <!-- Main Members List -->
+    <div class="members-main">
+        <div class="members-header">
+            <div class="members-tabs">
+                <span style="font-size: 20px; margin-right: 10px;">👥 Members</span>
+                <div class="tab active">All Members</div>
+                <div class="tab">Warnings (<%= warnedUsers %>)</div>
+            </div>
+        </div>
+
+        <div class="members-toolbar">
+            <div style="font-weight: 600; color: var(--text-primary);">Recent Members</div>
+            <div class="members-search">
+                <input type="text" id="searchInput" placeholder="Search by username or id...">
+            </div>
+        </div>
+
+        <div class="members-list">
+            <table class="member-table">
+                <thead>
+                    <tr>
+                        <th width="40"><input type="checkbox"></th>
+                        <th>Name</th>
+                        <th>Member Since</th>
+                        <th>Warnings</th>
+                        <th>Roles</th>
+                    </tr>
+                </thead>
+                <tbody id="membersTableBody">
+                    <% members.forEach(m => { %>
+                        <%
+                            const joinedDate = new Date(m.joinedAt);
+                            const now = new Date();
+                            const diffTime = Math.abs(now - joinedDate);
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                            let timeStr = `${diffDays} days ago`;
+                            if (diffDays > 30) timeStr = `${Math.floor(diffDays/30)} months ago`;
+                            if (diffDays > 365) timeStr = `${Math.floor(diffDays/365)} years ago`;
+                        %>
+                        <tr class="member-row" data-id="<%= m.id %>" data-tag="<%= m.tag %>" data-username="<%= m.username %>" data-avatar="<%= m.avatar %>" data-joined="<%= timeStr %>" data-roles="<%= m.roles.join(',') %>">
+                            <td><input type="checkbox"></td>
+                            <td>
+                                <div class="member-profile">
+                                    <img src="<%= m.avatar %>" alt="Avatar" class="member-avatar">
+                                    <div>
+                                        <div class="member-name"><%= m.username %></div>
+                                        <div class="member-tag"><%= m.tag %></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><%= timeStr %></td>
+                            <td>
+                                <% if (m.warnings > 0) { %>
+                                    <span style="color: #ef4444; font-weight: bold;">⚠️ <%= m.warnings %></span>
+                                <% } else { %>
+                                    -
+                                <% } %>
+                            </td>
+                            <td>
+                                <% 
+                                    let displayRoles = m.roles.slice(0, 2);
+                                    displayRoles.forEach(rId => {
+                                        let r = roles.find(ro => ro.id === rId);
+                                        if (r && r.name !== '@everyone') {
+                                %>
+                                    <span class="role-badge">
+                                        <span class="role-dot" style="background-color: <%= r.hexColor !== '#000000' ? r.hexColor : '#999' %>"></span>
+                                        <%= r.name %>
+                                    </span>
+                                <% } }) %>
+                                <% if (m.roles.length > 2) { %>
+                                    <span class="role-badge" style="background: rgba(255,255,255,0.1);">+<%= m.roles.length - 2 %></span>
+                                <% } %>
+                            </td>
                         </tr>
                     <% }) %>
-                <% } else { %>
-                    <tr>
-                        <td colspan="3">
-                            <div class="empty-state">
-                                <div class="empty-icon">🛡️</div>
-                                <p>Tidak ada riwayat warning. Server aman!</p>
-                            </div>
-                        </td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Mod Sidebar -->
+    <div class="mod-sidebar" id="modSidebar">
+        <div class="mod-sidebar-header">
+            <button class="mod-sidebar-close" onclick="closeSidebar()">✕</button>
+            <div class="member-profile" style="margin-top: 10px;">
+                <img src="" id="sb-avatar" class="member-avatar" style="width: 50px; height: 50px;">
+                <div>
+                    <div class="member-name" id="sb-username" style="font-size: 18px;"></div>
+                    <div class="member-tag" id="sb-tag"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mod-actions">
+            <div class="mod-btn" title="Message">💬</div>
+            <div class="mod-btn" title="Timeout">🔇</div>
+            <div class="mod-btn danger" title="Kick">👢</div>
+            <div class="mod-btn danger" title="Ban">🔨</div>
+            <div class="mod-btn" title="Copy ID">ID</div>
+        </div>
+
+        <div class="mod-section">
+            <h3>Server Activity <span style="font-size: 12px; font-weight: normal; cursor: pointer;">Detailed ></span></h3>
+            <div style="color: var(--text-secondary); font-size: 14px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>Joined Discord</span>
+                    <span id="sb-joined" style="color: var(--text-primary);"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mod-section" style="flex: 1; overflow-y: auto;">
+            <h3>Roles <span style="font-size: 12px; cursor: pointer;" onclick="toggleAddRole()">+ Add</span></h3>
+            
+            <div id="addRoleContainer" style="display: none;">
+                <select id="roleSelect" class="role-select">
+                    <option value="" disabled selected>Select a role...</option>
+                    <% roles.forEach(r => { if(r.name !== '@everyone') { %>
+                        <option value="<%= r.id %>" data-color="<%= r.hexColor %>" data-name="<%= r.name %>"><%= r.name %></option>
+                    <% } }) %>
+                </select>
+                <button class="btn btn-primary" style="width: 100%; padding: 8px;" onclick="addRole()">Give Role</button>
+                <div style="margin-bottom: 15px;"></div>
+            </div>
+
+            <div class="mod-roles-list" id="sb-roles-list">
+                <!-- Roles injected via JS -->
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    const serverRoles = <%- JSON.stringify(roles) %>;
+    let selectedMemberId = null;
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase();
+        document.querySelectorAll('.member-row').forEach(row => {
+            const name = row.getAttribute('data-username').toLowerCase();
+            const tag = row.getAttribute('data-tag').toLowerCase();
+            const id = row.getAttribute('data-id');
+            if (name.includes(query) || tag.includes(query) || id.includes(query)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Row selection & Sidebar
+    document.querySelectorAll('.member-row').forEach(row => {
+        row.addEventListener('click', function(e) {
+            if(e.target.type === 'checkbox') return;
+            
+            document.querySelectorAll('.member-row').forEach(r => r.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            selectedMemberId = this.getAttribute('data-id');
+            document.getElementById('sb-avatar').src = this.getAttribute('data-avatar');
+            document.getElementById('sb-username').textContent = this.getAttribute('data-username');
+            document.getElementById('sb-tag').textContent = this.getAttribute('data-tag');
+            document.getElementById('sb-joined').textContent = this.getAttribute('data-joined');
+            
+            renderSidebarRoles(this.getAttribute('data-roles').split(',').filter(r => r));
+            
+            document.getElementById('modSidebar').classList.add('active');
+        });
+    });
+
+    function closeSidebar() {
+        document.getElementById('modSidebar').classList.remove('active');
+        document.querySelectorAll('.member-row').forEach(r => r.classList.remove('selected'));
+        selectedMemberId = null;
+    }
+
+    function toggleAddRole() {
+        const c = document.getElementById('addRoleContainer');
+        c.style.display = c.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function renderSidebarRoles(roleIds) {
+        const container = document.getElementById('sb-roles-list');
+        container.innerHTML = '';
+        
+        roleIds.forEach(id => {
+            const r = serverRoles.find(ro => ro.id === id);
+            if(r && r.name !== '@everyone') {
+                const el = document.createElement('span');
+                el.className = 'role-badge';
+                el.innerHTML = `
+                    <span class="role-dot" style="background-color: ${r.hexColor !== '#000000' ? r.hexColor : '#999'}"></span>
+                    ${r.name}
+                    <span style="margin-left: 5px; cursor: pointer; color: #ef4444;" onclick="removeRole('${r.id}')">×</span>
+                `;
+                container.appendChild(el);
+            }
+        });
+    }
+
+    async function addRole() {
+        const roleId = document.getElementById('roleSelect').value;
+        if(!roleId || !selectedMemberId) return;
+
+        try {
+            const res = await fetch('/api/member-roles', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: selectedMemberId, roleId: roleId, action: 'add' })
+            });
+            
+            if(res.ok) {
+                // Optimistic UI update
+                const row = document.querySelector(`.member-row[data-id="${selectedMemberId}"]`);
+                let rls = row.getAttribute('data-roles').split(',').filter(r=>r);
+                if(!rls.includes(roleId)) rls.push(roleId);
+                row.setAttribute('data-roles', rls.join(','));
+                renderSidebarRoles(rls);
+            } else {
+                alert('Gagal menambah role. Cek perizinan bot.');
+            }
+        } catch(e) {
+            alert('Error jaringan');
+        }
+    }
+
+    async function removeRole(roleId) {
+        if(!selectedMemberId) return;
+        
+        try {
+            const res = await fetch('/api/member-roles', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: selectedMemberId, roleId: roleId, action: 'remove' })
+            });
+            
+            if(res.ok) {
+                const row = document.querySelector(`.member-row[data-id="${selectedMemberId}"]`);
+                let rls = row.getAttribute('data-roles').split(',').filter(r=>r);
+                rls = rls.filter(r => r !== roleId);
+                row.setAttribute('data-roles', rls.join(','));
+                renderSidebarRoles(rls);
+            } else {
+                alert('Gagal menghapus role. Cek perizinan bot.');
+            }
+        } catch(e) {
+            alert('Error jaringan');
+        }
+    }
+</script>
 
 <%- include('partials/footer') %>

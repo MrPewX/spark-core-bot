@@ -8,7 +8,7 @@ const cors = require('cors');
 module.exports = {
     start: (client, startTime) => {
         const app = express();
-        const port = process.env.PORT || 8080;
+        const port = process.env.SERVER_PORT || process.env.PORT || 8080;
 
         // Middlewares
         app.use(cors());
@@ -122,7 +122,7 @@ module.exports = {
         });
 
         // ─── MODERATION PAGE ───
-        app.get('/moderation', (req, res) => {
+        app.get('/moderation', async (req, res) => {
             const warnings = db.getAllWarnings ? db.getAllWarnings() : {};
             const warningList = Object.keys(warnings).map(userId => ({
                 userId,
@@ -130,10 +130,41 @@ module.exports = {
                 lastReason: warnings[userId].length > 0 ? warnings[userId][warnings[userId].length - 1].reason : '-'
             }));
             const totalWarnings = warningList.reduce((acc, w) => acc + w.count, 0);
+
+            const guild = client.guilds.cache.first();
+            let members = [];
+            let roles = [];
+            
+            if (guild) {
+                await guild.members.fetch();
+                members = Array.from(guild.members.cache.values()).map(m => {
+                    const memberWarnings = warnings[m.id] ? warnings[m.id].length : 0;
+                    return {
+                        id: m.id,
+                        tag: m.user.tag,
+                        username: m.user.username,
+                        avatar: m.user.displayAvatarURL({ dynamic: true, size: 64 }),
+                        joinedAt: m.joinedAt,
+                        userCreatedAt: m.user.createdAt,
+                        roles: Array.from(m.roles.cache.keys()),
+                        warnings: memberWarnings
+                    };
+                }).sort((a, b) => b.joinedAt - a.joinedAt);
+
+                roles = Array.from(guild.roles.cache.values()).sort((a, b) => b.position - a.position).map(r => ({
+                    id: r.id,
+                    name: r.name,
+                    hexColor: r.hexColor
+                }));
+            }
+
             res.render('moderation', {
                 warningList,
                 totalWarnings,
-                warnedUsers: warningList.length
+                warnedUsers: warningList.length,
+                members,
+                roles,
+                guildId: guild ? guild.id : ''
             });
         });
 

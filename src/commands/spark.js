@@ -89,6 +89,17 @@ module.exports = {
             .addIntegerOption(opt => opt.setName('durasi').setDescription('Durasi dalam menit').setRequired(true))
             .addStringOption(opt => opt.setName('alasan').setDescription('Alasan').setRequired(true))
         )
+        .addSubcommand(sub => 
+            sub.setName('give-role').setDescription('Berikan role ke member (Admin Only)')
+            .addUserOption(opt => opt.setName('user').setDescription('Target member').setRequired(true))
+            .addRoleOption(opt => opt.setName('role').setDescription('Role yang ingin diberikan').setRequired(true))
+        )
+
+        // ─── Subcommands AI ───
+        .addSubcommand(sub => 
+            sub.setName('ai').setDescription('Tanya AI sopport by MetaAI')
+            .addStringOption(opt => opt.setName('perintah').setDescription('Pertanyaan atau perintah untuk AI').setRequired(true))
+        )
 
         // ─── Subcommands Keuangan (Kas) ───
         .addSubcommand(sub => 
