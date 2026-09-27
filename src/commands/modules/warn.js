@@ -1,11 +1,20 @@
-const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, PermissionsBitField } = require('discord.js');
 const db = require('../../services/database');
 const config = require('../../config');
+
+function isAdmin(member) {
+    return member.permissions.has(PermissionsBitField.Flags.Administrator) ||
+           member.roles.cache.some(role => role.name.toLowerCase().includes('admin'));
+}
 
 module.exports = {
     data: { name: 'warn' },
 
     async execute(interaction) {
+        if (!isAdmin(interaction.member)) {
+            return interaction.reply({ content: '❌ Kamu tidak memiliki akses.', ephemeral: true });
+        }
+
         const target = interaction.options.getUser('user');
         const reason = interaction.options.getString('alasan');
         const moderator = interaction.user;

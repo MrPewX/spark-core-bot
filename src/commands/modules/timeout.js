@@ -1,5 +1,10 @@
-const { PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { PermissionFlagsBits, EmbedBuilder, PermissionsBitField } = require('discord.js');
 const config = require('../../config');
+
+function isAdmin(member) {
+    return member.permissions.has(PermissionsBitField.Flags.Administrator) ||
+           member.roles.cache.some(role => role.name.toLowerCase().includes('admin'));
+}
 
 module.exports = {
     data: { name: 'timeout' },
@@ -9,8 +14,8 @@ module.exports = {
         const duration = interaction.options.getInteger('durasi');
         const reason = interaction.options.getString('alasan');
 
-        if (!interaction.member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
-            return interaction.reply({ content: '❌ Kamu tidak punya izin untuk melakukan timeout!', ephemeral: true });
+        if (!isAdmin(interaction.member)) {
+            return interaction.reply({ content: '❌ Kamu tidak memiliki akses.', ephemeral: true });
         }
 
         if (!target) {

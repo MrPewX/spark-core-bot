@@ -94,6 +94,11 @@ module.exports = {
             .addUserOption(opt => opt.setName('user').setDescription('Target member').setRequired(true))
             .addRoleOption(opt => opt.setName('role').setDescription('Role yang ingin diberikan').setRequired(true))
         )
+        .addSubcommand(sub => 
+            sub.setName('delete-role').setDescription('Hapus role dari member (Admin Only)')
+            .addUserOption(opt => opt.setName('user').setDescription('Target member').setRequired(true))
+            .addRoleOption(opt => opt.setName('role').setDescription('Role yang ingin dihapus').setRequired(true))
+        )
 
         // ─── Subcommands AI ───
         .addSubcommand(sub => 

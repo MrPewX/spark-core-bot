@@ -1,5 +1,10 @@
-const { PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { PermissionFlagsBits, EmbedBuilder, PermissionsBitField } = require('discord.js');
 const config = require('../../config');
+
+function isAdmin(member) {
+    return member.permissions.has(PermissionsBitField.Flags.Administrator) ||
+           member.roles.cache.some(role => role.name.toLowerCase().includes('admin'));
+}
 
 module.exports = {
     data: { name: 'kick' },
@@ -8,8 +13,8 @@ module.exports = {
         const target = interaction.options.getMember('user');
         const reason = interaction.options.getString('alasan');
 
-        if (!interaction.member.permissions.has(PermissionFlagsBits.KickMembers)) {
-            return interaction.reply({ content: '❌ Kamu tidak punya izin untuk melakukan kick!', ephemeral: true });
+        if (!isAdmin(interaction.member)) {
+            return interaction.reply({ content: '❌ Kamu tidak memiliki akses.', ephemeral: true });
         }
 
         if (!target) {
